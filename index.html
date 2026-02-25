@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECLAMAÇÃO 360º · UFCD 7266 · completo + interativo</title>
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&family=Archivo+Black&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Three.js e GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --roxo-profundo: #7D1756;
+      --roxo-variante: #7B1556;
+      --laranja-vivo: #F04E35;
+      --laranja-medio: #ED4F36;
+      --branco: #FFFFFF;
+      --bg-dark: #0a0a0a;
+      --grad-1: linear-gradient(135deg, var(--laranja-vivo), var(--roxo-profundo));
+    }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg-dark);
+      color: #fff;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    .cursor, .cursor-follower {
+      position: fixed; pointer-events: none; z-index: 9999; border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .cursor { width: 24px; height: 24px; border: 2px solid var(--laranja-vivo); transition: transform 0.2s; }
+    .cursor-follower { width: 50px; height: 50px; background: rgba(240,78,53,0.1); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); transition: transform 0.4s; }
+    nav {
+      position: fixed; top:0; width:100%; padding:1.5rem 4rem; display:flex; justify-content:space-between;
+      align-items:center; z-index:100; backdrop-filter:blur(8px); background:rgba(10,10,10,0.3);
+    }
+    .logo { font-family:'Archivo Black', sans-serif; font-size:2.2rem; background:var(--grad-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-links a { color:#fff; text-decoration:none; margin:0 1.5rem; font-weight:400; letter-spacing:1px; position:relative; }
+    .nav-links a::after { content:''; position:absolute; bottom:-5px; left:0; width:0; height:2px; background:var(--grad-1); transition:0.3s; }
+    .nav-links a:hover::after { width:100%; }
+    #canvas-container { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:-1; }
+    section { position:relative; min-height:100vh; padding:7rem 4rem; backdrop-filter:blur(8px); background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(240,78,53,0.2); }
+    .section-content { max-width:1400px; margin:0 auto; }
+    h2 { font-size:clamp(2.5rem,6vw,5rem); font-family:'Unbounded',sans-serif; margin-bottom:2rem; background:var(--grad-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; display:inline-block; }
+    .card-3d {
+      background:rgba(255,255,255,0.02); backdrop-filter:blur(20px); border:1px solid rgba(240,78,53,0.2);
+      border-radius:30px; padding:2rem; transform-style:preserve-3d; transition:0.4s;
+      transform:perspective(1000px) rotateY(5deg) rotateX(2deg);
+    }
+    .card-3d:hover { transform:perspective(1000px) rotateY(0deg) translateY(-15px) scale(1.02); border-color:var(--laranja-vivo); box-shadow:0 30px 50px -30px #F04E35; }
+    .btn-3d, .btn-resposta-3d, .btn-interativo {
+      padding:0.8rem 2rem; border:none; border-radius:50px; font-weight:700; font-family:'Unbounded',sans-serif;
+      background:var(--grad-1); color:#0a0a0a; cursor:pointer; transition:0.3s; border:2px solid transparent;
+    }
+    .btn-interativo { margin:0.5rem; background:rgba(240,78,53,0.2); color:#fff; border-color:var(--laranja-vivo); }
+    .btn-interativo:hover { background:var(--laranja-vivo); color:#000; transform:scale(1.05); }
+    .grid-2, .grid-3 { display:grid; gap:1.5rem; margin:2rem 0; }
+    .grid-2 { grid-template-columns:repeat(2,1fr); }
+    .grid-3 { grid-template-columns:repeat(3,1fr); }
+    .perfil-card { padding:1.5rem; border-radius:30px; color:#fff; cursor:pointer; transition:0.3s; border:2px solid transparent; }
+    .perfil-card.agressivo { background:#b3371f; }
+    .perfil-card.passivo { background:#b33d2a; }
+    .perfil-card.indeciso { background:#4f1038; }
+    .perfil-card.racional { background:#4e0d37; }
+    .perfil-card:hover { transform:scale(1.02); border-color:#fff; }
+    .feedback-box { background:rgba(0,0,0,0.5); border-radius:40px; padding:1.5rem; margin:1rem 0; border-left:6px solid var(--laranja-vivo); }
+    .livro-reclamacoes-sim { background:#2c2c2c; border-radius:30px; padding:2rem; font-family:monospace; border:2px dashed var(--laranja-vivo); }
+    input, textarea { background:rgba(255,255,255,0.1); border:1px solid var(--laranja-vivo); color:#fff; padding:0.8rem; border-radius:20px; width:100%; margin-bottom:1rem; }
+    .solinca-box { background:linear-gradient(145deg, #7D1756, #F04E35); border-radius:60px; padding:3rem; text-align:center; }
+    /* esconder avaliação */
+    #avaliacao { display: none; }
+    @media (max-width:800px){ .grid-2, .grid-3 { grid-template-columns:1fr; } nav { padding:1rem; } .nav-links { display:none; } }
+  </style>
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-follower" id="cursor-follower"></div>
+  <div id="canvas-container"></div>
+
+  <nav>
+    <div class="logo">R360°</div>
+    <div class="nav-links">
+      <a href="#ponto1">1.Reclamação</a>
+      <a href="#ponto2">2.Comunicação</a>
+      <a href="#ponto3">3.Sistema</a>
+      <a href="#ponto4">4.Legislação</a>
+      <a href="#ponto5">5.Conflito</a>
+      <a href="#ponto6">6.Solinca</a>
+    </div>
+  </nav>
+
+  <!-- HOME -->
+  <section id="home" style="justify-content:center; text-align:center;">
+    <div class="section-content">
+      <h1 style="font-size:clamp(3rem,12vw,7rem);"><span class="gradient-text">RECLAMAÇÃO 360º</span></h1>
+      <p style="font-size:2rem; margin-bottom:2rem;">UFCD 7266 · Técnico de Gestão Desportiva</p>
+      <button class="btn-3d" onclick="scrollToSection('ponto1')">INICIAR ATIVIDADES</button>
+    </div>
+  </section>
+
+  <!-- PONTO 1: Brainstorming, casos reais, role play -->
+  <section id="ponto1">
+    <div class="section-content">
+      <h2>1 · A RECLAMAÇÃO E O CLIENTE</h2>
+      <p style="font-size:1.8rem; margin-bottom:2rem;">✅ Brainstorming · Casos reais · Role play</p>
+      <div class="grid-2">
+        <div class="card-3d">
+          <i class="fas fa-brain fa-3x" style="color:var(--laranja-vivo);"></i>
+          <h3>Brainstorming: reclamações num clube</h3>
+          <button class="btn-interativo" id="addReclamacao">+ Adicionar ideia</button>
+          <ul id="listaReclamacoes" style="margin-top:1rem; list-style:none;">
+            <li><i class="fas fa-comment"></i> Mensalidades atrasadas / cobrança indevida</li>
+            <li><i class="fas fa-comment"></i> Horários de aulas incompatíveis</li>
+            <li><i class="fas fa-comment"></i> Balneários sujos / falta de água quente</li>
+          </ul>
+          <input type="text" id="novaReclamacao" placeholder="ex: equipamento avariado" style="margin-top:1rem;">
+        </div>
+        <div class="card-3d">
+          <i class="fas fa-futbol fa-3x"></i>
+          <h3>Casos reais (clube)</h3>
+          <div class="caso" onclick="alert('Caso: Aula de spinning sem professor. Solução: oferecer reposição + desconto.')">📅 Aula sem professor</div>
+          <div class="caso" onclick="alert('Caso: Cobrança duplicada no débito direto. Solução: reembolso imediato + 10% desconto.')">💰 Cobrança duplicada</div>
+          <div class="caso" onclick="alert('Caso: Piscina fechada sem aviso. Solução: comunicação prévia + acesso livre noutro horário.')">🏊‍♂️ Piscina fechada</div>
+        </div>
+      </div>
+      <!-- Role play interativo -->
+      <h3>🎭 Jogo de papéis: escolhe um perfil</h3>
+      <div class="grid-2" style="margin-top:1rem;">
+        <div class="perfil-card agressivo" onclick="simularPerfil('agressivo')">🔥 Agressivo – grita, acusa</div>
+        <div class="perfil-card passivo" onclick="simularPerfil('passivo')">😶 Passivo – não reclama mas fica insatisfeito</div>
+        <div class="perfil-card indeciso" onclick="simularPerfil('indeciso')">❓ Indeciso – contradiz-se</div>
+        <div class="perfil-card racional" onclick="simularPerfil('racional')">📊 Racional – detalhista</div>
+      </div>
+      <div id="roleplayFeedback" class="feedback-box">Clique num perfil para ver a melhor abordagem</div>
+    </div>
+  </section>
+
+  <!-- PONTO 2: simulações atendimento, linguagem corporal, frases assertivas -->
+  <section id="ponto2">
+    <div class="section-content">
+      <h2>2 · COMUNICAÇÃO EFICAZ</h2>
+      <p style="font-size:1.5rem;">✅ Simulações · Linguagem corporal · Frases assertivas</p>
+      <div class="grid-3">
+        <div class="card-3d">
+          <i class="fas fa-phone-alt fa-2x"></i> <h4>Atendimento telefónico</h4>
+          <button class="btn-interativo" onclick="simularChamada()">Simular chamada</button>
+          <p id="callFeedback" style="margin-top:1rem;"></p>
+        </div>
+        <div class="card-3d">
+          <i class="fas fa-user-tie fa-2x"></i> <h4>Linguagem corporal</h4>
+          <button class="btn-interativo" onclick="mostrarDicaCorporal()">Mostrar dica</button>
+          <p id="bodyTip">✔ Postura aberta, contacto visual, acenar com a cabeça.</p>
+        </div>
+        <div class="card-3d">
+          <i class="fas fa-check-double fa-2x"></i> <h4>Frases assertivas</h4>
+          <select id="fraseSituacao" class="btn-interativo" style="width:100%;">
+            <option value="atraso">Aula atrasada</option>
+            <option value="equip">Equipamento avariado</option>
+            <option value="cobranca">Cobrança errada</option>
+          </select>
+          <button class="btn-interativo" onclick="mostrarFraseAssertiva()">Gerar frase</button>
+          <p id="fraseOutput" style="background:#222; padding:1rem; border-radius:20px; margin-top:1rem;"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PONTO 3: fluxograma, erros, procedimentos -->
+  <section id="ponto3">
+    <div class="section-content">
+      <h2>3 · SISTEMA DE GESTÃO</h2>
+      <p>✅ Fluxograma · Identificação de erros · Proposta de procedimentos</p>
+      <div class="grid-2">
+        <div class="card-3d">
+          <h3>Fluxograma ginásio FIT360</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center;">
+            <span class="btn-interativo" style="background:var(--laranja-vivo);">Reclamação</span> <i class="fas fa-arrow-right"></i>
+            <span class="btn-interativo">Registo</span> <i class="fas fa-arrow-right"></i>
+            <span class="btn-interativo">Análise</span> <i class="fas fa-arrow-right"></i>
+            <span class="btn-interativo">Resposta</span> <i class="fas fa-arrow-right"></i>
+            <span class="btn-interativo">Melhoria</span>
+          </div>
+          <button class="btn-interativo" style="margin-top:2rem;" onclick="alert('Fluxo: app/balcão → responsável → manutenção/faturação → resposta + inquérito')">Ver detalhe</button>
+        </div>
+        <div class="card-3d">
+          <h3>❌ Erros em diálogos</h3>
+          <p><em>"Isso não é comigo."</em> <button class="btn-interativo" onclick="identificarErro('passar responsabilidade')">Analisar</button></p>
+          <p><em>"Acalme-se, não precisa gritar."</em> <button class="btn-interativo" onclick="identificarErro('confronto')">Analisar</button></p>
+          <p><em>"Vou ver, mas não prometo nada."</em> <button class="btn-interativo" onclick="identificarErro('falta de compromisso')">Analisar</button></p>
+          <div id="erroFeedback" class="feedback-box"></div>
+        </div>
+      </div>
+      <div class="card-3d" style="margin-top:2rem;">
+        <h3>📋 Trabalho de grupo: procedimentos internos</h3>
+        <p>Propõe uma regra para o clube:</p>
+        <input type="text" id="procedimentoInput" placeholder="ex: responder reclamações em 24h">
+        <button class="btn-interativo" onclick="adicionarProcedimento()">Adicionar à lista</button>
+        <ul id="procedimentoLista"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PONTO 4: livro reclamações, mini plano de melhoria, debate -->
+  <section id="ponto4">
+    <div class="section-content">
+      <h2>4 · LEGISLAÇÃO + MELHORIA</h2>
+      <p>✅ Livro de reclamações · Plano de melhoria · Debate</p>
+      <div class="grid-2">
+        <div class="livro-reclamacoes-sim">
+          <h3>📖 Simulação Livro Reclamações</h3>
+          <input type="text" placeholder="Nome" id="livroNome">
+          <input type="text" placeholder="Descrição da reclamação" id="livroDesc">
+          <input type="text" placeholder="Pedido de resolução" id="livroPedido">
+          <button class="btn-interativo" onclick="enviarLivro()">Registar reclamação</button>
+          <p id="livroConfirm" style="margin-top:1rem;"></p>
+        </div>
+        <div class="card-3d">
+          <h3>📈 Mini plano de melhoria (escola desportiva)</h3>
+          <p>Que ação propor para melhorar a satisfação?</p>
+          <input type="text" id="melhoriaInput" placeholder="ex: formar staff em atendimento">
+          <button class="btn-interativo" onclick="adicionarMelhoria()">Adicionar ao plano</button>
+          <ul id="melhoriaLista"></ul>
+        </div>
+      </div>
+      <div class="card-3d" style="margin-top:2rem;">
+        <h3>💬 Debate: Cliente satisfeito vs cliente fidelizado</h3>
+        <button class="btn-interativo" onclick="debate('satisfeito')">Ver argumento satisfeito</button>
+        <button class="btn-interativo" onclick="debate('fidelizado')">Ver argumento fidelizado</button>
+        <p id="debateOutput" style="margin-top:1rem; font-size:1.3rem;"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PONTO 5: stress e crise -->
+  <section id="ponto5">
+    <div class="section-content">
+      <h2>5 · CONFLITO E STRESS</h2>
+      <p>✅ Técnicas de controlo · Simulação de crise</p>
+      <div class="grid-2">
+        <div class="card-3d">
+          <i class="fas fa-lungs fa-2x"></i> <h4>Respiração 4-7-8</h4>
+          <button class="btn-interativo" onclick="iniciarRespiracao()">Iniciar exercício</button>
+          <p id="respTexto"></p>
+        </div>
+        <div class="card-3d">
+          <i class="fas fa-exclamation-triangle fa-2x"></i> <h4>Crise: cancelamento de prova</h4>
+          <button class="btn-interativo" onclick="crise('agressiva')">Responder agressivamente</button>
+          <button class="btn-interativo" onclick="crise('passiva')">Responder passivamente</button>
+          <button class="btn-interativo" onclick="crise('assertiva')">Responder assertivamente</button>
+          <p id="criseOutput" style="margin-top:1rem;"></p>
+        </div>
+      </div>
+      <div class="card-3d" style="margin-top:2rem;">
+        <h3>🧘 Outras técnicas</h3>
+        <span class="btn-interativo" onclick="alert('Reformular: ver o problema como oportunidade')">Reformular</span>
+        <span class="btn-interativo" onclick="alert('Quebra-gelo: usar humor cuidadoso')">Quebra-gelo</span>
+        <span class="btn-interativo" onclick="alert('Validar emoções: compreendo a sua frustração')">Validar</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PONTO 6: projeto sobre Solinca NorteShopping (grupo de 1) -->
+  <section id="ponto6">
+    <div class="section-content">
+      <h2>6 · PROJETO SOLINCA NORTESHOPPING</h2>
+      <p>👤 Grupo: apenas eu (aluno) · plano individual</p>
+      <div class="solinca-box">
+        <h3 style="font-size:3rem; color:#fff;">SOLINCA NORTESHOPPING</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
+          <div>
+            <h4>🔍 Reclamações mais comuns</h4>
+            <ul style="list-style:none;">
+              <li><i class="fas fa-times"></i> Aulas lotadas</li>
+              <li><i class="fas fa-times"></i> Avarias em passadeiras</li>
+              <li><i class="fas fa-times"></i> Falta de toalhas/limpeza</li>
+              <li><i class="fas fa-times"></i> Cancelamento de aulas sem aviso</li>
+            </ul>
+          </div>
+          <div>
+            <h4>📌 Procedimentos personalizados</h4>
+            <ul>
+              <li>Registo na app / balcão</li>
+              <li>Equipa de experiência ao cliente</li>
+              <li>Resposta em < 24h</li>
+              <li>Compensação: day pass + massagem</li>
+            </ul>
+          </div>
+        </div>
+        <div style="margin-top:2rem;">
+          <button class="btn-interativo" onclick="mostrarPlanoSolinca()">📋 Ver plano de melhoria (meu projeto)</button>
+          <p id="solincaOutput" style="margin-top:1rem;"></p>
+        </div>
+        <p style="margin-top:2rem;">⭐ Apresentação oral: análise de dados de reclamações do último mês + proposta de formação para colaboradores.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER sem avaliação -->
+  <footer style="text-align:center; padding:4rem; background:rgba(0,0,0,0.7);">
+    <p>UFCD 7266 – Gestão e Tratamento das Reclamações · Afonso Soares · 12ºGD · Prof. Conceição Menezes</p>
+    <p style="opacity:0.6;">© 2025 · versão interativa completa</p>
+  </footer>
+
+  <script>
+    // smooth scroll
+    function scrollToSection(id) { const el = document.getElementById(id); if(el) gsap.to(window, {duration:1, scrollTo:{y:el, offsetY:70}}); }
+    document.querySelectorAll('.nav-links a').forEach(a=>{ a.addEventListener('click',(e)=>{ e.preventDefault(); scrollToSection(a.getAttribute('href').substring(1)); }); });
+
+    // cursor
+    const cursor = document.getElementById('cursor'), follower = document.getElementById('cursor-follower');
+    document.addEventListener('mousemove',(e)=>{ gsap.to(cursor,{x:e.clientX, y:e.clientY, duration:0.1}); gsap.to(follower,{x:e.clientX, y:e.clientY, duration:0.3}); });
+
+    // PONTO 1 interatividade
+    document.getElementById('addReclamacao').addEventListener('click',()=>{
+      let nova = document.getElementById('novaReclamacao').value;
+      if(nova.trim()==='') return;
+      let li = document.createElement('li');
+      li.innerHTML = '<i class="fas fa-comment"></i> '+nova;
+      document.getElementById('listaReclamacoes').appendChild(li);
+      document.getElementById('novaReclamacao').value='';
+    });
+    window.simularPerfil = (tipo) => {
+      let msg = '';
+      if(tipo==='agressivo') msg='🔥 Abordagem: manter calma, não revidar, mostrar empatia, oferecer solução rápida.';
+      if(tipo==='passivo') msg='😶 Abordagem: encorajar a falar, fazer perguntas abertas, validar o desconforto.';
+      if(tipo==='indeciso') msg='❓ Abordagem: simplificar, resumir, confirmar os pontos principais com o cliente.';
+      if(tipo==='racional') msg='📊 Abordagem: apresentar factos, prazos concretos, detalhes por escrito.';
+      document.getElementById('roleplayFeedback').innerText = msg;
+    };
+    // PONTO 2
+    window.simularChamada = ()=>{
+      let respostas = ['"Compreendo a sua irritação, vou resolver."','"Já estou a verificar o problema."','"Fique descansado, em 30min tem resposta."'];
+      document.getElementById('callFeedback').innerText = '✅ Atendente: '+respostas[Math.floor(Math.random()*respostas.length)];
+    };
+    window.mostrarDicaCorporal = ()=>{
+      let dicas = ['✔ Mantenha contacto visual, não cruze os braços.','✔ Incline o corpo ligeiramente para a frente.','✔ Acene com a cabeça para mostrar que ouve.'];
+      document.getElementById('bodyTip').innerText = dicas[Math.floor(Math.random()*dicas.length)];
+    };
+    window.mostrarFraseAssertiva = ()=>{
+      let sit = document.getElementById('fraseSituacao').value;
+      let frase = '';
+      if(sit==='atraso') frase = '"Percebo que esteja frustrado com o atraso. Vamos compensar com uma aula extra gratuita."';
+      if(sit==='equip') frase = '"O equipamento será reparado hoje. Enquanto isso, oferecemos acesso à área de peso livre."';
+      if(sit==='cobranca') frase = '"Houve um erro na cobrança. Já acionei o reembolso e um bônus de 10% na próxima mensalidade."';
+      document.getElementById('fraseOutput').innerText = frase;
+    };
+    // PONTO 3
+    window.identificarErro = (erro) => { document.getElementById('erroFeedback').innerText = '❌ Erro: '+erro+'. Deveria assumir responsabilidade e oferecer solução.'; };
+    window.adicionarProcedimento = ()=>{
+      let val = document.getElementById('procedimentoInput').value;
+      if(val){
+        let li = document.createElement('li'); li.innerText = '📌 '+val;
+        document.getElementById('procedimentoLista').appendChild(li);
+        document.getElementById('procedimentoInput').value='';
+      }
+    };
+    // PONTO 4
+    window.enviarLivro = ()=>{
+      let nome = document.getElementById('livroNome').value;
+      let desc = document.getElementById('livroDesc').value;
+      if(nome && desc) document.getElementById('livroConfirm').innerText = '✅ Reclamação registada. Entidade reguladora notificada (simulação).';
+      else document.getElementById('livroConfirm').innerText = '⚠️ Preencha nome e descrição.';
+    };
+    window.adicionarMelhoria = ()=>{
+      let val = document.getElementById('melhoriaInput').value;
+      if(val){
+        let li = document.createElement('li'); li.innerText = '🔧 '+val;
+        document.getElementById('melhoriaLista').appendChild(li);
+        document.getElementById('melhoriaInput').value='';
+      }
+    };
+    window.debate = (tipo)=>{
+      if(tipo==='satisfeito') document.getElementById('debateOutput').innerText = 'Cliente satisfeito: problema resolvido. Cliente fidelizado: sente-se especial e recomenda.';
+      else document.getElementById('debateOutput').innerText = 'Fidelização: surpreender com follow-up, ofertas personalizadas, lembrar preferências.';
+    };
+    // PONTO 5
+    window.iniciarRespiracao = ()=>{
+      let texto = document.getElementById('respTexto');
+      texto.innerText = '🌬 Inspire 4s... segure 7s... expire 8s... (repita)';
+      setTimeout(()=>{ texto.innerText = '😌 Técnica concluída. Acalmou?'; }, 5000);
+    };
+    window.crise = (estilo)=>{
+      let out = document.getElementById('criseOutput');
+      if(estilo==='agressiva') out.innerHTML = '❌ Cliente revoltado, chamou a comunicação social. Crise agravada.';
+      if(estilo==='passiva') out.innerHTML = '⚠️ Cliente sente-se ignorado, abandona o clube.';
+      if(estilo==='assertiva') out.innerHTML = '✅ Cliente compreendeu o cancelamento, aceitou reagendamento e brinde.';
+    };
+    // PONTO 6 Solinca
+    window.mostrarPlanoSolinca = ()=>{
+      document.getElementById('solincaOutput').innerHTML = '📋 PLANO: 1. Reforço de manutenção (passadeiras). 2. App com aviso de lotação. 3. Formação "Comunicação em crise" para a equipa. 4. Compensação automática para aulas canceladas.';
+    };
+
+    // Three.js fundo
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+    const particles = new THREE.BufferGeometry();
+    const count = 1500;
+    const pos = new Float32Array(count*3);
+    for(let i=0; i<count*3; i+=3){
+      pos[i]=(Math.random()-0.5)*50; pos[i+1]=(Math.random()-0.5)*50; pos[i+2]=(Math.random()-0.5)*50;
+    }
+    particles.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const material = new THREE.PointsMaterial({color: 0xF04E35, size: 0.05, transparent:true, blending: THREE.AdditiveBlending});
+    const mesh = new THREE.Points(particles, material);
+    scene.add(mesh);
+    camera.position.z = 15;
+    function animate(){
+      requestAnimationFrame(animate);
+      mesh.rotation.y += 0.0002;
+      renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', ()=>{ camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+    // scrolltrigger cards
+    gsap.registerPlugin(ScrollTrigger);
+    document.querySelectorAll('.card-3d, .perfil-card, .solinca-box').forEach(el=>{
+      gsap.fromTo(el, {opacity:0, y:40}, {opacity:1, y:0, duration:0.8, scrollTrigger:{trigger:el, start:'top 85%'}});
+    });
+  </script>
+</body>
+</html>
