@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RECLAMAÇÃO 360º · UFCD 7266 · completo + interativo</title>
-  <!-- Fontes -->
+  <title>RECLAMAÇÃO 360º · SOLINCA · PROJETO INTERATIVO</title>
+  <!-- Fontes vanguardistas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&family=Archivo+Black&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap" rel="stylesheet">
@@ -15,70 +15,451 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+  <!-- Chart.js para gráficos interativos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
+    /* ----- RESET & CORES ----- */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --roxo-profundo: #7D1756;
       --roxo-variante: #7B1556;
       --laranja-vivo: #F04E35;
       --laranja-medio: #ED4F36;
-      --branco: #FFFFFF;
+      --branco-puro: #FFFFFF;
       --bg-dark: #0a0a0a;
+      --text-light: #ffffff;
       --grad-1: linear-gradient(135deg, var(--laranja-vivo), var(--roxo-profundo));
+      --grad-2: linear-gradient(45deg, var(--laranja-medio), var(--roxo-variante));
     }
     body {
       font-family: 'Space Grotesk', sans-serif;
       background: var(--bg-dark);
-      color: #fff;
+      color: var(--text-light);
       overflow-x: hidden;
-      cursor: none;
     }
-    .cursor, .cursor-follower {
-      position: fixed; pointer-events: none; z-index: 9999; border-radius: 50%;
-      transform: translate(-50%, -50%);
+    /* ----- cursor personalizado ----- */
+    .cursor {
+      width: 24px; height: 24px; border: 2px solid var(--laranja-vivo); border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9999; mix-blend-mode: difference;
+      transform: translate(-50%, -50%); transition: transform 0.2s ease;
     }
-    .cursor { width: 24px; height: 24px; border: 2px solid var(--laranja-vivo); transition: transform 0.2s; }
-    .cursor-follower { width: 50px; height: 50px; background: rgba(240,78,53,0.1); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); transition: transform 0.4s; }
+    .cursor-follower {
+      width: 50px; height: 50px; background: rgba(240, 78, 53, 0.1); border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%);
+      transition: transform 0.4s ease; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);
+    }
+    /* ----- navbar ----- */
     nav {
-      position: fixed; top:0; width:100%; padding:1.5rem 4rem; display:flex; justify-content:space-between;
-      align-items:center; z-index:100; backdrop-filter:blur(8px); background:rgba(10,10,10,0.3);
+      position: fixed; top: 0; left: 0; width: 100%; padding: 1.8rem 4rem;
+      display: flex; justify-content: space-between; align-items: center; z-index: 100;
+      mix-blend-mode: difference; backdrop-filter: blur(4px); background: rgba(10,10,10,0.2);
     }
-    .logo { font-family:'Archivo Black', sans-serif; font-size:2.2rem; background:var(--grad-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .nav-links a { color:#fff; text-decoration:none; margin:0 1.5rem; font-weight:400; letter-spacing:1px; position:relative; }
-    .nav-links a::after { content:''; position:absolute; bottom:-5px; left:0; width:0; height:2px; background:var(--grad-1); transition:0.3s; }
-    .nav-links a:hover::after { width:100%; }
-    #canvas-container { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:-1; }
-    section { position:relative; min-height:100vh; padding:7rem 4rem; backdrop-filter:blur(8px); background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(240,78,53,0.2); }
-    .section-content { max-width:1400px; margin:0 auto; }
-    h2 { font-size:clamp(2.5rem,6vw,5rem); font-family:'Unbounded',sans-serif; margin-bottom:2rem; background:var(--grad-1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; display:inline-block; }
+    .logo {
+      font-family: 'Archivo Black', sans-serif; font-size: 2.2rem;
+      background: var(--grad-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 3rem; }
+    .nav-links a {
+      color: var(--branco-puro); text-decoration: none; font-weight: 500; font-size: 1rem;
+      text-transform: uppercase; letter-spacing: 2px; position: relative; padding: 0.5rem 0;
+      font-family: 'Unbounded', sans-serif; font-weight: 300;
+    }
+    .nav-links a::before {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+      background: var(--grad-1); transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .nav-links a:hover::before { width: 100%; }
+    /* ----- canvas fundo 3D ----- */
+    #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    /* ----- secções ----- */
+    section {
+      position: relative; min-height: 100vh; padding: 8rem 4rem;
+      display: flex; flex-direction: column; justify-content: center;
+      backdrop-filter: blur(12px); background: rgba(10, 10, 10, 0.4);
+      border-bottom: 1px solid rgba(240, 78, 53, 0.15);
+    }
+    .section-content { max-width: 1400px; margin: 0 auto; width: 100%; }
+    /* ----- tipografia ----- */
+    h1, h2, h3 { font-family: 'Unbounded', sans-serif; font-weight: 800; line-height: 1; text-transform: uppercase; }
+    h1 { font-size: clamp(2.8rem, 10vw, 6rem); margin-bottom: 2rem; letter-spacing: -0.03em; line-height: 1.1; }
+    h2 {
+      font-size: clamp(3rem, 8vw, 5.5rem); margin-bottom: 2rem;
+      background: var(--grad-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    .gradient-text {
+      background: var(--grad-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-size: 200% 200%; animation: gradientFlow 6s ease infinite;
+      display: inline-block;
+    }
+    @keyframes gradientFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    
+    /* ----- cards e elementos interativos ----- */
+    .cards-grid-3d {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
+      margin: 4rem 0; perspective: 2000px;
+    }
     .card-3d {
-      background:rgba(255,255,255,0.02); backdrop-filter:blur(20px); border:1px solid rgba(240,78,53,0.2);
-      border-radius:30px; padding:2rem; transform-style:preserve-3d; transition:0.4s;
-      transform:perspective(1000px) rotateY(5deg) rotateX(2deg);
+      background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px);
+      border: 1px solid rgba(240, 78, 53, 0.2); border-radius: 40px; padding: 3rem 2rem;
+      transform-style: preserve-3d; transform: rotateY(10deg) rotateX(4deg) translateZ(10px);
+      transition: all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2); cursor: pointer;
+      box-shadow: 0 30px 40px -30px var(--laranja-vivo);
     }
-    .card-3d:hover { transform:perspective(1000px) rotateY(0deg) translateY(-15px) scale(1.02); border-color:var(--laranja-vivo); box-shadow:0 30px 50px -30px #F04E35; }
-    .btn-3d, .btn-resposta-3d, .btn-interativo {
-      padding:0.8rem 2rem; border:none; border-radius:50px; font-weight:700; font-family:'Unbounded',sans-serif;
-      background:var(--grad-1); color:#0a0a0a; cursor:pointer; transition:0.3s; border:2px solid transparent;
+    .card-3d:hover {
+      transform: rotateY(0deg) rotateX(0deg) translateY(-25px) scale(1.05);
+      box-shadow: 0 40px 70px -20px var(--laranja-vivo); border-color: var(--laranja-vivo);
     }
-    .btn-interativo { margin:0.5rem; background:rgba(240,78,53,0.2); color:#fff; border-color:var(--laranja-vivo); }
-    .btn-interativo:hover { background:var(--laranja-vivo); color:#000; transform:scale(1.05); }
-    .grid-2, .grid-3 { display:grid; gap:1.5rem; margin:2rem 0; }
-    .grid-2 { grid-template-columns:repeat(2,1fr); }
-    .grid-3 { grid-template-columns:repeat(3,1fr); }
-    .perfil-card { padding:1.5rem; border-radius:30px; color:#fff; cursor:pointer; transition:0.3s; border:2px solid transparent; }
-    .perfil-card.agressivo { background:#b3371f; }
-    .perfil-card.passivo { background:#b33d2a; }
-    .perfil-card.indeciso { background:#4f1038; }
-    .perfil-card.racional { background:#4e0d37; }
-    .perfil-card:hover { transform:scale(1.02); border-color:#fff; }
-    .feedback-box { background:rgba(0,0,0,0.5); border-radius:40px; padding:1.5rem; margin:1rem 0; border-left:6px solid var(--laranja-vivo); }
-    .livro-reclamacoes-sim { background:#2c2c2c; border-radius:30px; padding:2rem; font-family:monospace; border:2px dashed var(--laranja-vivo); }
-    input, textarea { background:rgba(255,255,255,0.1); border:1px solid var(--laranja-vivo); color:#fff; padding:0.8rem; border-radius:20px; width:100%; margin-bottom:1rem; }
-    .solinca-box { background:linear-gradient(145deg, #7D1756, #F04E35); border-radius:60px; padding:3rem; text-align:center; }
-    /* esconder avaliação */
-    #avaliacao { display: none; }
-    @media (max-width:800px){ .grid-2, .grid-3 { grid-template-columns:1fr; } nav { padding:1rem; } .nav-links { display:none; } }
+    
+    /* ----- componentes interativos personalizados ----- */
+    .interactive-area {
+      background: rgba(125, 23, 86, 0.2);
+      border-radius: 50px;
+      padding: 2.5rem;
+      margin: 2rem 0;
+      border: 2px solid var(--laranja-vivo);
+    }
+    
+    .brainstorm-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .brainstorm-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 30px;
+      padding: 1.5rem;
+      border: 1px solid rgba(240,78,53,0.3);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .brainstorm-item:hover {
+      background: rgba(240,78,53,0.2);
+      transform: scale(1.02);
+      border-color: var(--laranja-vivo);
+    }
+    
+    .brainstorm-item.selected {
+      background: var(--laranja-vivo);
+      color: var(--bg-dark);
+      font-weight: bold;
+    }
+    
+    .roleplay-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: var(--laranja-vivo);
+      color: var(--bg-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    
+    .chat-simulation {
+      background: rgba(0,0,0,0.5);
+      border-radius: 30px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .chat-message {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      align-items: flex-start;
+    }
+    
+    .chat-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--grad-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    
+    .chat-bubble {
+      background: rgba(255,255,255,0.1);
+      padding: 1.5rem;
+      border-radius: 25px;
+      border-top-left-radius: 5px;
+      max-width: 70%;
+      font-size: 1.1rem;
+    }
+    
+    .chat-bubble.client { background: rgba(240,78,53,0.2); border-left: 4px solid var(--laranja-vivo); }
+    .chat-bubble.attendant { background: rgba(125,23,86,0.3); border-left: 4px solid var(--roxo-profundo); }
+    
+    .response-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .response-btn {
+      background: transparent;
+      border: 2px solid var(--laranja-vivo);
+      color: white;
+      padding: 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    .response-btn:hover {
+      background: var(--laranja-vivo);
+      color: var(--bg-dark);
+      transform: scale(1.02);
+    }
+    
+    .feedback-message {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.5);
+      font-style: italic;
+    }
+    
+    .linguagem-corporal-card {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 50px;
+      border: 1px dashed var(--laranja-vivo);
+      cursor: move;
+      transition: all 0.3s;
+    }
+    
+    .linguagem-corporal-card:hover {
+      background: var(--laranja-vivo);
+      color: var(--bg-dark);
+      transform: scale(1.05);
+    }
+    
+    .drop-zone {
+      min-height: 100px;
+      background: rgba(240,78,53,0.1);
+      border: 2px dashed var(--laranja-vivo);
+      border-radius: 30px;
+      padding: 2rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    
+    .assertive-exercise {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    
+    .assertive-card {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(0,0,0,0.3);
+      padding: 1.5rem;
+      border-radius: 20px;
+      border: 1px solid var(--roxo-profundo);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .assertive-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--laranja-vivo);
+      box-shadow: 0 20px 30px -15px var(--laranja-vivo);
+    }
+    
+    .assertive-card.correct {
+      background: var(--roxo-profundo);
+      border-color: var(--laranja-vivo);
+    }
+    
+    .fluxograma-builder {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin: 3rem 0;
+    }
+    
+    .fluxo-etapa {
+      background: var(--grad-1);
+      color: var(--bg-dark);
+      padding: 1.5rem 2.5rem;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: grab;
+      font-size: 1.2rem;
+      box-shadow: 0 10px 20px -5px var(--laranja-vivo);
+    }
+    
+    .fluxo-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+      padding: 2rem;
+      border-radius: 60px;
+      margin: 2rem 0;
+      min-height: 150px;
+    }
+    
+    .error-video-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .error-video-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 30px 40px -20px var(--laranja-vivo);
+    }
+    
+    .error-tag {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--laranja-vivo);
+      color: var(--bg-dark);
+      padding: 0.8rem 1.5rem;
+      border-radius: 30px;
+      font-weight: bold;
+    }
+    
+    .livro-reclamacoes {
+      background: rgba(125,23,86,0.2);
+      border-radius: 30px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .livro-input {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid var(--laranja-vivo);
+      border-radius: 20px;
+      padding: 1rem;
+      width: 100%;
+      margin: 1rem 0;
+      color: white;
+      font-size: 1.1rem;
+    }
+    
+    .plano-melhoria-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .plano-melhoria-item:hover {
+      background: rgba(240,78,53,0.2);
+      transform: translateX(20px);
+    }
+    
+    .debate-card {
+      background: linear-gradient(145deg, #7D1756, #4f1038);
+      border-radius: 30px;
+      padding: 2rem;
+      margin: 1rem 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .debate-card:hover {
+      transform: scale(1.02) rotate(1deg);
+      box-shadow: 0 20px 40px -10px var(--laranja-vivo);
+    }
+    
+    .stress-control {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .stress-exercise {
+      background: rgba(240,78,53,0.1);
+      border-radius: 30px;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid var(--laranja-vivo);
+    }
+    
+    .timer-display {
+      font-size: 4rem;
+      font-weight: bold;
+      color: var(--laranja-vivo);
+      margin: 1rem 0;
+    }
+    
+    .crisis-simulation {
+      background: rgba(125,23,86,0.3);
+      border-radius: 50px;
+      padding: 3rem;
+      margin: 2rem 0;
+      border: 2px solid var(--laranja-vivo);
+    }
+    
+    .crisis-option {
+      background: transparent;
+      border: 2px solid var(--laranja-vivo);
+      color: white;
+      padding: 1.5rem 2rem;
+      border-radius: 50px;
+      margin: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+    
+    .crisis-option:hover {
+      background: var(--laranja-vivo);
+      color: var(--bg-dark);
+      transform: scale(1.05);
+    }
+    
+    .projeto-solinca {
+      background: linear-gradient(145deg, rgba(125,23,86,0.3), rgba(240,78,53,0.2));
+      border-radius: 60px;
+      padding: 3rem;
+      border: 3px solid var(--laranja-vivo);
+      margin: 2rem 0;
+    }
+    
+    .chart-container {
+      background: rgba(255,255,255,0.05);
+      border-radius: 30px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    
+    @media (max-width: 768px) {
+      section { padding: 6rem 1.5rem; }
+      .nav-links { display: none; }
+      .brainstorm-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -89,346 +470,753 @@
   <nav>
     <div class="logo">R360°</div>
     <div class="nav-links">
-      <a href="#ponto1">1.Reclamação</a>
-      <a href="#ponto2">2.Comunicação</a>
-      <a href="#ponto3">3.Sistema</a>
-      <a href="#ponto4">4.Legislação</a>
-      <a href="#ponto5">5.Conflito</a>
-      <a href="#ponto6">6.Solinca</a>
+      <a href="#home">Home</a>
+      <a href="#ponto1">Ponto 1</a>
+      <a href="#ponto2">Ponto 2</a>
+      <a href="#ponto3">Ponto 3</a>
+      <a href="#ponto4">Ponto 4</a>
+      <a href="#ponto5">Ponto 5</a>
+      <a href="#ponto6">Solinca</a>
     </div>
   </nav>
 
   <!-- HOME -->
-  <section id="home" style="justify-content:center; text-align:center;">
+  <section id="home">
     <div class="section-content">
-      <h1 style="font-size:clamp(3rem,12vw,7rem);"><span class="gradient-text">RECLAMAÇÃO 360º</span></h1>
-      <p style="font-size:2rem; margin-bottom:2rem;">UFCD 7266 · Técnico de Gestão Desportiva</p>
-      <button class="btn-3d" onclick="scrollToSection('ponto1')">INICIAR ATIVIDADES</button>
+      <h1><span class="gradient-text">GESTÃO DE</span><br><span class="gradient-text">RECLAMAÇÕES</span></h1>
+      <p style="font-size: 1.8rem; max-width: 800px; margin-bottom: 3rem; font-weight: 300;">UFCD 7266 · Projeto Interativo · Solinca Norteshopping</p>
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <button class="btn-3d" onclick="scrollToSection('ponto1')">COMEÇAR</button>
+      </div>
     </div>
   </section>
 
-  <!-- PONTO 1: Brainstorming, casos reais, role play -->
+  <!-- PONTO 1: Conceito + Brainstorming + Role Play -->
   <section id="ponto1">
     <div class="section-content">
-      <h2>1 · A RECLAMAÇÃO E O CLIENTE</h2>
-      <p style="font-size:1.8rem; margin-bottom:2rem;">✅ Brainstorming · Casos reais · Role play</p>
-      <div class="grid-2">
-        <div class="card-3d">
-          <i class="fas fa-brain fa-3x" style="color:var(--laranja-vivo);"></i>
-          <h3>Brainstorming: reclamações num clube</h3>
-          <button class="btn-interativo" id="addReclamacao">+ Adicionar ideia</button>
-          <ul id="listaReclamacoes" style="margin-top:1rem; list-style:none;">
-            <li><i class="fas fa-comment"></i> Mensalidades atrasadas / cobrança indevida</li>
-            <li><i class="fas fa-comment"></i> Horários de aulas incompatíveis</li>
-            <li><i class="fas fa-comment"></i> Balneários sujos / falta de água quente</li>
-          </ul>
-          <input type="text" id="novaReclamacao" placeholder="ex: equipamento avariado" style="margin-top:1rem;">
+      <h2>01 · BRAINSTORMING & PERFIS</h2>
+      
+      <!-- Brainstorming Interativo -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-brain"></i> Brainstorming: Que reclamações num clube desportivo?</h3>
+        <div class="brainstorm-grid" id="brainstormGrid">
+          <div class="brainstorm-item" onclick="selectBrainstorm(this, 'mensalidades')">
+            <i class="fas fa-euro-sign"></i> Mensalidades abusivas
+          </div>
+          <div class="brainstorm-item" onclick="selectBrainstorm(this, 'horarios')">
+            <i class="fas fa-clock"></i> Horários limitados
+          </div>
+          <div class="brainstorm-item" onclick="selectBrainstorm(this, 'limpeza')">
+            <i class="fas fa-broom"></i> Falta de limpeza
+          </div>
+          <div class="brainstorm-item" onclick="selectBrainstorm(this, 'equipamentos')">
+            <i class="fas fa-dumbbell"></i> Equipamentos avariados
+          </div>
+          <div class="brainstorm-item" onclick="selectBrainstorm(this, 'aulas')">
+            <i class="fas fa-user-friends"></i> Aulas sem professor
+          </div>
+          <div class="brainstorm-item" onclick="selectBrainstorm(this, 'atendimento')">
+            <i class="fas fa-headset"></i> Mau atendimento
+          </div>
         </div>
-        <div class="card-3d">
-          <i class="fas fa-futbol fa-3x"></i>
-          <h3>Casos reais (clube)</h3>
-          <div class="caso" onclick="alert('Caso: Aula de spinning sem professor. Solução: oferecer reposição + desconto.')">📅 Aula sem professor</div>
-          <div class="caso" onclick="alert('Caso: Cobrança duplicada no débito direto. Solução: reembolso imediato + 10% desconto.')">💰 Cobrança duplicada</div>
-          <div class="caso" onclick="alert('Caso: Piscina fechada sem aviso. Solução: comunicação prévia + acesso livre noutro horário.')">🏊‍♂️ Piscina fechada</div>
+        <div id="brainstormFeedback" style="margin-top: 2rem; padding: 1.5rem; background: rgba(0,0,0,0.5); border-radius: 30px;">
+          👆 Clica nos itens para explorar soluções
         </div>
       </div>
-      <!-- Role play interativo -->
-      <h3>🎭 Jogo de papéis: escolhe um perfil</h3>
-      <div class="grid-2" style="margin-top:1rem;">
-        <div class="perfil-card agressivo" onclick="simularPerfil('agressivo')">🔥 Agressivo – grita, acusa</div>
-        <div class="perfil-card passivo" onclick="simularPerfil('passivo')">😶 Passivo – não reclama mas fica insatisfeito</div>
-        <div class="perfil-card indeciso" onclick="simularPerfil('indeciso')">❓ Indeciso – contradiz-se</div>
-        <div class="perfil-card racional" onclick="simularPerfil('racional')">📊 Racional – detalhista</div>
+
+      <!-- Casos Reais -->
+      <div class="cards-grid-3d">
+        <div class="card-3d" onclick="showCaseDetails('mensalidade')">
+          <i class="fas fa-file-invoice"></i>
+          <h3>Mensalidade duplicada</h3>
+          <p>Cliente pagou e apareceu débito novamente. Como resolver?</p>
+        </div>
+        <div class="card-3d" onclick="showCaseDetails('horario')">
+          <i class="fas fa-calendar-times"></i>
+          <h3>Aula cancelada</h3>
+          <p>Spinning das 19h cancelada sem aviso. 10 clientes revoltados.</p>
+        </div>
+        <div class="card-3d" onclick="showCaseDetails('instalacoes')">
+          <i class="fas fa-shower"></i>
+          <h3>Balneários sem água</h3>
+          <p>3 dias sem água quente. Reclamações no livro.</p>
+        </div>
       </div>
-      <div id="roleplayFeedback" class="feedback-box">Clique num perfil para ver a melhor abordagem</div>
+
+      <!-- Role Play Interativo -->
+      <div class="interactive-area" style="position: relative;">
+        <span class="roleplay-badge">🎭 ROLE PLAY</span>
+        <h3>Jogo de Papéis: Tipos de Clientes</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
+          <div class="card-3d" style="background: rgba(240,78,53,0.2);" onclick="startRolePlay('agressivo')">
+            <i class="fas fa-fire" style="font-size: 3rem;"></i>
+            <h4>Agressivo</h4>
+            <p>"Isto é um roubo! Vou pôr isto nas redes sociais!"</p>
+            <button class="btn-3d" style="margin-top: 1rem; padding: 0.8rem;">SIMULAR</button>
+          </div>
+          <div class="card-3d" style="background: rgba(125,23,86,0.2);" onclick="startRolePlay('passivo')">
+            <i class="fas fa-ghost" style="font-size: 3rem;"></i>
+            <h4>Passivo</h4>
+            <p>"Não tem problema... eu espero... (mas nunca mais volta)"</p>
+            <button class="btn-3d" style="margin-top: 1rem; padding: 0.8rem;">SIMULAR</button>
+          </div>
+          <div class="card-3d" style="background: linear-gradient(145deg, #7D1756, #F04E35);" onclick="startRolePlay('indeciso')">
+            <i class="fas fa-question" style="font-size: 3rem;"></i>
+            <h4>Indeciso</h4>
+            <p>"Acho que sim... ou talvez não... o que acha melhor?"</p>
+            <button class="btn-3d" style="margin-top: 1rem; padding: 0.8rem;">SIMULAR</button>
+          </div>
+        </div>
+        <div id="roleplayFeedback" style="margin-top: 2rem; padding: 2rem; background: rgba(0,0,0,0.7); border-radius: 40px; font-size: 1.3rem; text-align: center;">
+          👥 Clica num perfil para iniciar a simulação
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- PONTO 2: simulações atendimento, linguagem corporal, frases assertivas -->
+  <!-- PONTO 2: Simulações + Linguagem Corporal + Frases Assertivas -->
   <section id="ponto2">
     <div class="section-content">
-      <h2>2 · COMUNICAÇÃO EFICAZ</h2>
-      <p style="font-size:1.5rem;">✅ Simulações · Linguagem corporal · Frases assertivas</p>
-      <div class="grid-3">
-        <div class="card-3d">
-          <i class="fas fa-phone-alt fa-2x"></i> <h4>Atendimento telefónico</h4>
-          <button class="btn-interativo" onclick="simularChamada()">Simular chamada</button>
-          <p id="callFeedback" style="margin-top:1rem;"></p>
+      <h2>02 · ATENDIMENTO & COMUNICAÇÃO</h2>
+
+      <!-- Simulação Atendimento -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-phone-alt"></i> Simulação: Atendimento Presencial e Telefónico</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div class="chat-simulation">
+            <h4>📞 Chamada Telefónica</h4>
+            <div class="chat-message">
+              <div class="chat-avatar">👤</div>
+              <div class="chat-bubble client">
+                <strong>Cliente:</strong> "Bom dia, sou sócio há 3 anos e hoje não consegui entrar no ginásio porque o meu cartão foi desativado!"
+              </div>
+            </div>
+            <div class="response-options">
+              <button class="response-btn" onclick="handleCallResponse('erro1')">"Deve ser erro do sistema"</button>
+              <button class="response-btn" onclick="handleCallResponse('erro2')">"Vou verificar imediatamente"</button>
+              <button class="response-btn" onclick="handleCallResponse('erro3')">"Não sou eu que trato disso"</button>
+              <button class="response-btn" onclick="handleCallResponse('correto')">"Compreendo, deixe-me resolver já"</button>
+            </div>
+            <div id="callFeedback" class="feedback-message"></div>
+          </div>
+
+          <div class="chat-simulation">
+            <h4>🏢 Atendimento Presencial</h4>
+            <div class="chat-message">
+              <div class="chat-avatar">👩</div>
+              <div class="chat-bubble client">
+                <strong>Cliente:</strong> "A máquina de passadeiras está avariada há uma semana!"
+              </div>
+            </div>
+            <div class="response-options">
+              <button class="response-btn" onclick="handlePresentialResponse('erro1')">"Já mandei reclamação"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('erro2')">"Pode usar outra"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('correto1')">"Vou chamar o técnico"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('correto2')">"Oferecemos um day-pass"</button>
+            </div>
+            <div id="presentialFeedback" class="feedback-message"></div>
+          </div>
         </div>
-        <div class="card-3d">
-          <i class="fas fa-user-tie fa-2x"></i> <h4>Linguagem corporal</h4>
-          <button class="btn-interativo" onclick="mostrarDicaCorporal()">Mostrar dica</button>
-          <p id="bodyTip">✔ Postura aberta, contacto visual, acenar com a cabeça.</p>
+      </div>
+
+      <!-- Linguagem Corporal (Drag & Drop simplificado) -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-people-arrows"></i> Exercício: Linguagem Corporal</h3>
+        <p>Arrasta as ações para o grupo correto:</p>
+        <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">😊 Sorrir</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">👀 Contacto visual</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">🫂 Postura aberta</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">🙅‍♂️ Braços cruzados</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">😤 Suspiros</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">📱 Olhar telemóvel</span>
         </div>
-        <div class="card-3d">
-          <i class="fas fa-check-double fa-2x"></i> <h4>Frases assertivas</h4>
-          <select id="fraseSituacao" class="btn-interativo" style="width:100%;">
-            <option value="atraso">Aula atrasada</option>
-            <option value="equip">Equipamento avariado</option>
-            <option value="cobranca">Cobrança errada</option>
-          </select>
-          <button class="btn-interativo" onclick="mostrarFraseAssertiva()">Gerar frase</button>
-          <p id="fraseOutput" style="background:#222; padding:1rem; border-radius:20px; margin-top:1rem;"></p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div class="drop-zone" ondragover="allowDrop(event)" ondrop="drop(event, 'positiva')" id="dropPositiva">
+            <h4>✅ Comunicação Positiva</h4>
+          </div>
+          <div class="drop-zone" ondragover="allowDrop(event)" ondrop="drop(event, 'negativa')" id="dropNegativa">
+            <h4>❌ Comunicação Negativa</h4>
+          </div>
+        </div>
+        <div id="bodyLanguageFeedback" style="margin-top: 1rem; font-size: 1.3rem;"></div>
+      </div>
+
+      <!-- Frases Assertivas -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-check-double"></i> Construção de Frases Assertivas</h3>
+        <div class="assertive-exercise">
+          <div class="assertive-card" onclick="checkAssertive(this, 'correto')">
+            <p style="font-size: 1.2rem;">"O problema não é meu"</p>
+            <span class="gradient-text">👉 Clique para transformar</span>
+          </div>
+          <div class="assertive-card" onclick="checkAssertive(this, 'correto')">
+            <p style="font-size: 1.2rem;">"O sistema é lento"</p>
+            <span class="gradient-text">👉 Clique para transformar</span>
+          </div>
+          <div class="assertive-card" onclick="checkAssertive(this, 'correto')">
+            <p style="font-size: 1.2rem;">"Não posso fazer nada"</p>
+            <span class="gradient-text">👉 Clique para transformar</span>
+          </div>
+        </div>
+        <div id="assertiveResult" style="margin-top: 2rem; padding: 2rem; background: rgba(125,23,86,0.3); border-radius: 30px; font-size: 1.5rem; text-align: center;">
+          👆 Clica numa frase para ver a versão assertiva
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PONTO 3: fluxograma, erros, procedimentos -->
+  <!-- PONTO 3: Fluxograma + Erros + Procedimentos -->
   <section id="ponto3">
     <div class="section-content">
-      <h2>3 · SISTEMA DE GESTÃO</h2>
-      <p>✅ Fluxograma · Identificação de erros · Proposta de procedimentos</p>
-      <div class="grid-2">
-        <div class="card-3d">
-          <h3>Fluxograma ginásio FIT360</h3>
-          <div style="display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center;">
-            <span class="btn-interativo" style="background:var(--laranja-vivo);">Reclamação</span> <i class="fas fa-arrow-right"></i>
-            <span class="btn-interativo">Registo</span> <i class="fas fa-arrow-right"></i>
-            <span class="btn-interativo">Análise</span> <i class="fas fa-arrow-right"></i>
-            <span class="btn-interativo">Resposta</span> <i class="fas fa-arrow-right"></i>
-            <span class="btn-interativo">Melhoria</span>
-          </div>
-          <button class="btn-interativo" style="margin-top:2rem;" onclick="alert('Fluxo: app/balcão → responsável → manutenção/faturação → resposta + inquérito')">Ver detalhe</button>
+      <h2>03 · SISTEMA DE RECLAMAÇÕES</h2>
+
+      <!-- Fluxograma Interativo -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-diagram-project"></i> Cria o Fluxograma - Ginásio FIT360</h3>
+        <p>Organiza as etapas por ordem correta:</p>
+        <div class="fluxograma-builder">
+          <span class="fluxo-etapa" draggable="true" ondragstart="dragFluxo(event)" data-etapa="1">📥 RECEÇÃO</span>
+          <span class="fluxo-etapa" draggable="true" ondragstart="dragFluxo(event)" data-etapa="2">📝 REGISTO</span>
+          <span class="fluxo-etapa" draggable="true" ondragstart="dragFluxo(event)" data-etapa="3">🔍 ANÁLISE</span>
+          <span class="fluxo-etapa" draggable="true" ondragstart="dragFluxo(event)" data-etapa="4">💬 RESPOSTA</span>
+          <span class="fluxo-etapa" draggable="true" ondragstart="dragFluxo(event)" data-etapa="5">📈 MELHORIA</span>
         </div>
-        <div class="card-3d">
-          <h3>❌ Erros em diálogos</h3>
-          <p><em>"Isso não é comigo."</em> <button class="btn-interativo" onclick="identificarErro('passar responsabilidade')">Analisar</button></p>
-          <p><em>"Acalme-se, não precisa gritar."</em> <button class="btn-interativo" onclick="identificarErro('confronto')">Analisar</button></p>
-          <p><em>"Vou ver, mas não prometo nada."</em> <button class="btn-interativo" onclick="identificarErro('falta de compromisso')">Analisar</button></p>
-          <div id="erroFeedback" class="feedback-box"></div>
+        
+        <div class="fluxo-container" id="fluxoContainer" ondragover="allowDropFluxo(event)" ondrop="dropFluxo(event)">
+          <span style="color: var(--laranja-vivo);">Arrasta as etapas para aqui</span>
+        </div>
+        
+        <button class="btn-3d" onclick="checkFluxograma()" style="margin-top: 2rem;">✅ VERIFICAR ORDEM</button>
+        <div id="fluxoFeedback" style="margin-top: 1rem;"></div>
+      </div>
+
+      <!-- Identificação de Erros -->
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin: 2rem 0;">
+        <div class="error-video-card" onclick="identifyError('erro1')">
+          <div class="error-tag">🎬 CENA 1</div>
+          <div style="background: rgba(240,78,53,0.2); padding: 3rem; border-radius: 30px; text-align: center;">
+            <i class="fas fa-play-circle" style="font-size: 5rem;"></i>
+            <p style="margin-top: 1rem;">"Cliente reclama, funcionário diz: 'Não tenho nada com isso'"</p>
+          </div>
+        </div>
+        <div class="error-video-card" onclick="identifyError('erro2')">
+          <div class="error-tag">🎬 CENA 2</div>
+          <div style="background: rgba(125,23,86,0.2); padding: 3rem; border-radius: 30px; text-align: center;">
+            <i class="fas fa-play-circle" style="font-size: 5rem;"></i>
+            <p style="margin-top: 1rem;">"Funcionário interrompe: 'Deixe-me explicar uma coisa...'"</p>
+          </div>
         </div>
       </div>
-      <div class="card-3d" style="margin-top:2rem;">
-        <h3>📋 Trabalho de grupo: procedimentos internos</h3>
-        <p>Propõe uma regra para o clube:</p>
-        <input type="text" id="procedimentoInput" placeholder="ex: responder reclamações em 24h">
-        <button class="btn-interativo" onclick="adicionarProcedimento()">Adicionar à lista</button>
-        <ul id="procedimentoLista"></ul>
+      <div id="errorFeedback" style="padding: 2rem; background: rgba(0,0,0,0.5); border-radius: 30px;"></div>
+
+      <!-- Trabalho Grupo: Procedimentos -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-users"></i> Trabalho de Grupo: Procedimentos Internos</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+          <div class="card-3d" onclick="addProcedure('recepcao')">
+            <i class="fas fa-door-open"></i>
+            <h4>Receção</h4>
+            <p>Clique para adicionar procedimento</p>
+          </div>
+          <div class="card-3d" onclick="addProcedure('backoffice')">
+            <i class="fas fa-laptop"></i>
+            <h4>Backoffice</h4>
+            <p>Clique para adicionar procedimento</p>
+          </div>
+          <div class="card-3d" onclick="addProcedure('gerencia')">
+            <i class="fas fa-chart-line"></i>
+            <h4>Gerência</h4>
+            <p>Clique para adicionar procedimento</p>
+          </div>
+        </div>
+        <div id="proceduresList" style="margin-top: 2rem; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 30px;">
+          📋 Procedimentos definidos aparecerão aqui
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- PONTO 4: livro reclamações, mini plano de melhoria, debate -->
+  <!-- PONTO 4: Livro + Plano Melhoria + Debate -->
   <section id="ponto4">
     <div class="section-content">
-      <h2>4 · LEGISLAÇÃO + MELHORIA</h2>
-      <p>✅ Livro de reclamações · Plano de melhoria · Debate</p>
-      <div class="grid-2">
-        <div class="livro-reclamacoes-sim">
-          <h3>📖 Simulação Livro Reclamações</h3>
-          <input type="text" placeholder="Nome" id="livroNome">
-          <input type="text" placeholder="Descrição da reclamação" id="livroDesc">
-          <input type="text" placeholder="Pedido de resolução" id="livroPedido">
-          <button class="btn-interativo" onclick="enviarLivro()">Registar reclamação</button>
-          <p id="livroConfirm" style="margin-top:1rem;"></p>
-        </div>
-        <div class="card-3d">
-          <h3>📈 Mini plano de melhoria (escola desportiva)</h3>
-          <p>Que ação propor para melhorar a satisfação?</p>
-          <input type="text" id="melhoriaInput" placeholder="ex: formar staff em atendimento">
-          <button class="btn-interativo" onclick="adicionarMelhoria()">Adicionar ao plano</button>
-          <ul id="melhoriaLista"></ul>
+      <h2>04 · LEGISLAÇÃO & MELHORIA</h2>
+
+      <!-- Livro Reclamações Simulado -->
+      <div class="livro-reclamacoes">
+        <h3><i class="fas fa-book"></i> Simulação: Livro de Reclamações</h3>
+        <p style="font-size: 1.3rem; margin-bottom: 2rem;">Preenche os campos (simulação):</p>
+        
+        <input type="text" class="livro-input" id="nomeReclamante" placeholder="Nome do reclamante">
+        <input type="text" class="livro-input" id="dataReclamacao" placeholder="Data" value="2025-02-27">
+        <textarea class="livro-input" id="descricaoReclamacao" rows="4" placeholder="Descrição da reclamação..."></textarea>
+        
+        <button class="btn-3d" onclick="submitReclamacao()">📤 SUBMETER RECLAMAÇÃO</button>
+        
+        <div id="livroResultado" style="margin-top: 2rem; padding: 1.5rem; background: rgba(125,23,86,0.3); border-radius: 20px;">
+          Aguardando preenchimento...
         </div>
       </div>
-      <div class="card-3d" style="margin-top:2rem;">
-        <h3>💬 Debate: Cliente satisfeito vs cliente fidelizado</h3>
-        <button class="btn-interativo" onclick="debate('satisfeito')">Ver argumento satisfeito</button>
-        <button class="btn-interativo" onclick="debate('fidelizado')">Ver argumento fidelizado</button>
-        <p id="debateOutput" style="margin-top:1rem; font-size:1.3rem;"></p>
+
+      <!-- Mini Plano Melhoria -->
+      <div class="interactive-area">
+        <h3><i class="fas fa-chart-line"></i> Plano de Melhoria - Escola Desportiva</h3>
+        <div class="plano-melhoria-item" onclick="expandPlano('area1')">
+          <i class="fas fa-dumbbell"></i> Área: Equipamentos
+          <span style="float: right;">+</span>
+          <div id="area1" style="display: none; margin-top: 1rem;">
+            <p>Ação corretiva: Manutenção preventiva mensal</p>
+            <p>Responsável: Técnico de manutenção</p>
+            <p>Prazo: 7 dias</p>
+          </div>
+        </div>
+        <div class="plano-melhoria-item" onclick="expandPlano('area2')">
+          <i class="fas fa-users"></i> Área: Atendimento
+          <span style="float: right;">+</span>
+          <div id="area2" style="display: none; margin-top: 1rem;">
+            <p>Ação corretiva: Formação em comunicação</p>
+            <p>Responsável: RH</p>
+            <p>Prazo: 15 dias</p>
+          </div>
+        </div>
+        <div class="plano-melhoria-item" onclick="expandPlano('area3')">
+          <i class="fas fa-clock"></i> Área: Horários
+          <span style="float: right;">+</span>
+          <div id="area3" style="display: none; margin-top: 1rem;">
+            <p>Ação corretiva: Ajuste de horários de pico</p>
+            <p>Responsável: Direção</p>
+            <p>Prazo: 30 dias</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debate Interativo -->
+      <div class="debate-card" onclick="showDebate('satisfeito')">
+        <h4>🎤 Debate: Cliente Satisfeito vs Cliente Fidelizado</h4>
+        <p style="font-size: 1.3rem; margin: 1rem 0;">Clique para participar</p>
+        <div id="debateContent" style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 20px;">
+          A sua opinião aparecerá aqui...
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- PONTO 5: stress e crise -->
+  <!-- PONTO 5: Stress e Crise -->
   <section id="ponto5">
     <div class="section-content">
-      <h2>5 · CONFLITO E STRESS</h2>
-      <p>✅ Técnicas de controlo · Simulação de crise</p>
-      <div class="grid-2">
-        <div class="card-3d">
-          <i class="fas fa-lungs fa-2x"></i> <h4>Respiração 4-7-8</h4>
-          <button class="btn-interativo" onclick="iniciarRespiracao()">Iniciar exercício</button>
-          <p id="respTexto"></p>
+      <h2>05 · GESTÃO DE STRESS & CRISE</h2>
+
+      <!-- Técnicas Stress -->
+      <div class="stress-control">
+        <div class="stress-exercise">
+          <h4>🌬️ Técnica 4-7-8</h4>
+          <p>Inspira 4s · Segura 7s · Expira 8s</p>
+          <div class="timer-display" id="timer478">4</div>
+          <button class="btn-3d" onclick="start478()">INICIAR</button>
         </div>
-        <div class="card-3d">
-          <i class="fas fa-exclamation-triangle fa-2x"></i> <h4>Crise: cancelamento de prova</h4>
-          <button class="btn-interativo" onclick="crise('agressiva')">Responder agressivamente</button>
-          <button class="btn-interativo" onclick="crise('passiva')">Responder passivamente</button>
-          <button class="btn-interativo" onclick="crise('assertiva')">Responder assertivamente</button>
-          <p id="criseOutput" style="margin-top:1rem;"></p>
+        <div class="stress-exercise">
+          <h4>🧘 Respiracão consciente</h4>
+          <p>Acompanha o ritmo</p>
+          <div class="timer-display" id="timerMindful">🌊</div>
+          <button class="btn-3d" onclick="startMindful()">INICIAR</button>
         </div>
       </div>
-      <div class="card-3d" style="margin-top:2rem;">
-        <h3>🧘 Outras técnicas</h3>
-        <span class="btn-interativo" onclick="alert('Reformular: ver o problema como oportunidade')">Reformular</span>
-        <span class="btn-interativo" onclick="alert('Quebra-gelo: usar humor cuidadoso')">Quebra-gelo</span>
-        <span class="btn-interativo" onclick="alert('Validar emoções: compreendo a sua frustração')">Validar</span>
+
+      <!-- Simulação Crise -->
+      <div class="crisis-simulation">
+        <h3 style="font-size: 2.5rem;">🚨 SITUAÇÃO DE CRISE</h3>
+        <p style="font-size: 1.5rem;">Cancelamento de Prova de Natação (100 inscritos)</p>
+        
+        <div style="margin: 3rem 0;">
+          <button class="crisis-option" onclick="handleCrisis('ignorar')">❌ "Não é problema meu"</button>
+          <button class="crisis-option" onclick="handleCrisis('culpar')">😤 "Culpa da Câmara"</button>
+          <button class="crisis-option" onclick="handleCrisis('resolver')">✅ "Remarcamos e oferecemos day-pass"</button>
+          <button class="crisis-option" onclick="handleCrisis('empatia')">💚 "Compreendo, vamos resolver"</button>
+        </div>
+        
+        <div id="crisisResult" style="padding: 2rem; background: rgba(0,0,0,0.5); border-radius: 30px; font-size: 1.4rem;">
+          👆 Escolhe uma resposta para ver as consequências
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- PONTO 6: projeto sobre Solinca NorteShopping (grupo de 1) -->
+  <!-- PONTO 6: Projeto Solinca Norteshopping (individual) -->
   <section id="ponto6">
     <div class="section-content">
-      <h2>6 · PROJETO SOLINCA NORTESHOPPING</h2>
-      <p>👤 Grupo: apenas eu (aluno) · plano individual</p>
-      <div class="solinca-box">
-        <h3 style="font-size:3rem; color:#fff;">SOLINCA NORTESHOPPING</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
-          <div>
-            <h4>🔍 Reclamações mais comuns</h4>
-            <ul style="list-style:none;">
-              <li><i class="fas fa-times"></i> Aulas lotadas</li>
-              <li><i class="fas fa-times"></i> Avarias em passadeiras</li>
-              <li><i class="fas fa-times"></i> Falta de toalhas/limpeza</li>
-              <li><i class="fas fa-times"></i> Cancelamento de aulas sem aviso</li>
-            </ul>
+      <h2>06 · PROJETO SOLINCA NORTESHOPPING</h2>
+      
+      <div class="projeto-solinca">
+        <h3 style="font-size: 2.5rem;">🏋️ SOLINCA NORTESHOPPING</h3>
+        <p style="font-size: 1.5rem;">Análise Individual · Gestão de Reclamações</p>
+        
+        <!-- Estatísticas interativas -->
+        <div class="chart-container">
+          <canvas id="reclamacoesChart" style="width:100%; max-height:400px;"></canvas>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 3rem 0;">
+          <div class="card-3d" onclick="showSolincaDetail('tipos')">
+            <i class="fas fa-list"></i>
+            <h4>Tipos de Reclamações</h4>
+            <p>Manutenção · Horários · Mensalidades · Aulas</p>
+            <div id="tiposDetail" style="display: none;">
+              <ul>
+                <li>Máquinas avariadas (35%)</li>
+                <li>Lotação excessiva (28%)</li>
+                <li>Cancelamento aulas (22%)</li>
+                <li>Faturação (15%)</li>
+              </ul>
+            </div>
           </div>
-          <div>
-            <h4>📌 Procedimentos personalizados</h4>
-            <ul>
-              <li>Registo na app / balcão</li>
-              <li>Equipa de experiência ao cliente</li>
-              <li>Resposta em < 24h</li>
-              <li>Compensação: day pass + massagem</li>
-            </ul>
+          <div class="card-3d" onclick="showSolincaDetail('procedimentos')">
+            <i class="fas fa-clipboard-list"></i>
+            <h4>Procedimentos Atuais</h4>
+            <p>Clique para ver proposta</p>
+            <div id="procedimentosDetail" style="display: none;">
+              <p>1. Receção acolhe e regista</p>
+              <p>2. Supervisor analisa</p>
+              <p>3. Resposta em 24h</p>
+              <p>4. Seguimento com oferta</p>
+            </div>
           </div>
         </div>
-        <div style="margin-top:2rem;">
-          <button class="btn-interativo" onclick="mostrarPlanoSolinca()">📋 Ver plano de melhoria (meu projeto)</button>
-          <p id="solincaOutput" style="margin-top:1rem;"></p>
+
+        <!-- Plano de Melhoria Específico -->
+        <div class="interactive-area" style="background: rgba(240,78,53,0.1);">
+          <h3><i class="fas fa-clipboard-check"></i> Meu Plano para Solinca</h3>
+          
+          <div class="plano-melhoria-item" onclick="toggleSolincaItem('item1')">
+            📌 Implementar check-in digital
+            <div id="item1" style="display: none;">Reduz filas e reclamações de acesso</div>
+          </div>
+          <div class="plano-melhoria-item" onclick="toggleSolincaItem('item2')">
+            📌 App com manutenção em tempo real
+            <div id="item2" style="display: none;">Clientes reportam avarias diretamente</div>
+          </div>
+          <div class="plano-melhoria-item" onclick="toggleSolincaItem('item3')">
+            📌 Formação mensal em atendimento
+            <div id="item3" style="display: none;">Equipa treinada para reclamações</div>
+          </div>
         </div>
-        <p style="margin-top:2rem;">⭐ Apresentação oral: análise de dados de reclamações do último mês + proposta de formação para colaboradores.</p>
+
+        <!-- Apresentação Final -->
+        <div style="margin-top: 3rem; text-align: center;">
+          <button class="btn-3d" style="font-size: 2rem; padding: 2rem 4rem;" onclick="apresentarProjeto()">
+            🎤 APRESENTAR PROJETO
+          </button>
+          <div id="apresentacaoResult" style="margin-top: 2rem; padding: 2rem; background: rgba(125,23,86,0.3); border-radius: 30px;"></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER sem avaliação -->
-  <footer style="text-align:center; padding:4rem; background:rgba(0,0,0,0.7);">
-    <p>UFCD 7266 – Gestão e Tratamento das Reclamações · Afonso Soares · 12ºGD · Prof. Conceição Menezes</p>
-    <p style="opacity:0.6;">© 2025 · versão interativa completa</p>
-  </footer>
-
   <script>
-    // smooth scroll
-    function scrollToSection(id) { const el = document.getElementById(id); if(el) gsap.to(window, {duration:1, scrollTo:{y:el, offsetY:70}}); }
-    document.querySelectorAll('.nav-links a').forEach(a=>{ a.addEventListener('click',(e)=>{ e.preventDefault(); scrollToSection(a.getAttribute('href').substring(1)); }); });
-
-    // cursor
-    const cursor = document.getElementById('cursor'), follower = document.getElementById('cursor-follower');
-    document.addEventListener('mousemove',(e)=>{ gsap.to(cursor,{x:e.clientX, y:e.clientY, duration:0.1}); gsap.to(follower,{x:e.clientX, y:e.clientY, duration:0.3}); });
-
-    // PONTO 1 interatividade
-    document.getElementById('addReclamacao').addEventListener('click',()=>{
-      let nova = document.getElementById('novaReclamacao').value;
-      if(nova.trim()==='') return;
-      let li = document.createElement('li');
-      li.innerHTML = '<i class="fas fa-comment"></i> '+nova;
-      document.getElementById('listaReclamacoes').appendChild(li);
-      document.getElementById('novaReclamacao').value='';
-    });
-    window.simularPerfil = (tipo) => {
-      let msg = '';
-      if(tipo==='agressivo') msg='🔥 Abordagem: manter calma, não revidar, mostrar empatia, oferecer solução rápida.';
-      if(tipo==='passivo') msg='😶 Abordagem: encorajar a falar, fazer perguntas abertas, validar o desconforto.';
-      if(tipo==='indeciso') msg='❓ Abordagem: simplificar, resumir, confirmar os pontos principais com o cliente.';
-      if(tipo==='racional') msg='📊 Abordagem: apresentar factos, prazos concretos, detalhes por escrito.';
-      document.getElementById('roleplayFeedback').innerText = msg;
-    };
-    // PONTO 2
-    window.simularChamada = ()=>{
-      let respostas = ['"Compreendo a sua irritação, vou resolver."','"Já estou a verificar o problema."','"Fique descansado, em 30min tem resposta."'];
-      document.getElementById('callFeedback').innerText = '✅ Atendente: '+respostas[Math.floor(Math.random()*respostas.length)];
-    };
-    window.mostrarDicaCorporal = ()=>{
-      let dicas = ['✔ Mantenha contacto visual, não cruze os braços.','✔ Incline o corpo ligeiramente para a frente.','✔ Acene com a cabeça para mostrar que ouve.'];
-      document.getElementById('bodyTip').innerText = dicas[Math.floor(Math.random()*dicas.length)];
-    };
-    window.mostrarFraseAssertiva = ()=>{
-      let sit = document.getElementById('fraseSituacao').value;
-      let frase = '';
-      if(sit==='atraso') frase = '"Percebo que esteja frustrado com o atraso. Vamos compensar com uma aula extra gratuita."';
-      if(sit==='equip') frase = '"O equipamento será reparado hoje. Enquanto isso, oferecemos acesso à área de peso livre."';
-      if(sit==='cobranca') frase = '"Houve um erro na cobrança. Já acionei o reembolso e um bônus de 10% na próxima mensalidade."';
-      document.getElementById('fraseOutput').innerText = frase;
-    };
-    // PONTO 3
-    window.identificarErro = (erro) => { document.getElementById('erroFeedback').innerText = '❌ Erro: '+erro+'. Deveria assumir responsabilidade e oferecer solução.'; };
-    window.adicionarProcedimento = ()=>{
-      let val = document.getElementById('procedimentoInput').value;
-      if(val){
-        let li = document.createElement('li'); li.innerText = '📌 '+val;
-        document.getElementById('procedimentoLista').appendChild(li);
-        document.getElementById('procedimentoInput').value='';
-      }
-    };
-    // PONTO 4
-    window.enviarLivro = ()=>{
-      let nome = document.getElementById('livroNome').value;
-      let desc = document.getElementById('livroDesc').value;
-      if(nome && desc) document.getElementById('livroConfirm').innerText = '✅ Reclamação registada. Entidade reguladora notificada (simulação).';
-      else document.getElementById('livroConfirm').innerText = '⚠️ Preencha nome e descrição.';
-    };
-    window.adicionarMelhoria = ()=>{
-      let val = document.getElementById('melhoriaInput').value;
-      if(val){
-        let li = document.createElement('li'); li.innerText = '🔧 '+val;
-        document.getElementById('melhoriaLista').appendChild(li);
-        document.getElementById('melhoriaInput').value='';
-      }
-    };
-    window.debate = (tipo)=>{
-      if(tipo==='satisfeito') document.getElementById('debateOutput').innerText = 'Cliente satisfeito: problema resolvido. Cliente fidelizado: sente-se especial e recomenda.';
-      else document.getElementById('debateOutput').innerText = 'Fidelização: surpreender com follow-up, ofertas personalizadas, lembrar preferências.';
-    };
-    // PONTO 5
-    window.iniciarRespiracao = ()=>{
-      let texto = document.getElementById('respTexto');
-      texto.innerText = '🌬 Inspire 4s... segure 7s... expire 8s... (repita)';
-      setTimeout(()=>{ texto.innerText = '😌 Técnica concluída. Acalmou?'; }, 5000);
-    };
-    window.crise = (estilo)=>{
-      let out = document.getElementById('criseOutput');
-      if(estilo==='agressiva') out.innerHTML = '❌ Cliente revoltado, chamou a comunicação social. Crise agravada.';
-      if(estilo==='passiva') out.innerHTML = '⚠️ Cliente sente-se ignorado, abandona o clube.';
-      if(estilo==='assertiva') out.innerHTML = '✅ Cliente compreendeu o cancelamento, aceitou reagendamento e brinde.';
-    };
-    // PONTO 6 Solinca
-    window.mostrarPlanoSolinca = ()=>{
-      document.getElementById('solincaOutput').innerHTML = '📋 PLANO: 1. Reforço de manutenção (passadeiras). 2. App com aviso de lotação. 3. Formação "Comunicação em crise" para a equipa. 4. Compensação automática para aulas canceladas.';
-    };
-
-    // Three.js fundo
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
-    const particles = new THREE.BufferGeometry();
-    const count = 1500;
-    const pos = new Float32Array(count*3);
-    for(let i=0; i<count*3; i+=3){
-      pos[i]=(Math.random()-0.5)*50; pos[i+1]=(Math.random()-0.5)*50; pos[i+2]=(Math.random()-0.5)*50;
+    // Smooth scroll
+    function scrollToSection(id) {
+      const section = document.getElementById(id);
+      if (section) gsap.to(window, {duration: 1.5, scrollTo: {y: section, offsetY: 70}, ease: "power3.inOut"});
     }
-    particles.setAttribute('position', new THREE.BufferAttribute(pos,3));
-    const material = new THREE.PointsMaterial({color: 0xF04E35, size: 0.05, transparent:true, blending: THREE.AdditiveBlending});
-    const mesh = new THREE.Points(particles, material);
-    scene.add(mesh);
-    camera.position.z = 15;
-    function animate(){
-      requestAnimationFrame(animate);
-      mesh.rotation.y += 0.0002;
+    
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', (e) => { e.preventDefault(); scrollToSection(link.getAttribute('href').substring(1)); });
+    });
+
+    // Three.js Background (cópia do original)
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 2000;
+    const posArray = new Float32Array(particlesCount * 3);
+    const colorArray = new Float32Array(particlesCount * 3);
+    for(let i = 0; i < particlesCount * 3; i += 3) {
+      posArray[i] = (Math.random() - 0.5) * 40;
+      posArray[i+1] = (Math.random() - 0.5) * 40;
+      posArray[i+2] = (Math.random() - 0.5) * 40;
+      const choice = Math.random();
+      if (choice < 0.5) {
+        colorArray[i] = 240/255; colorArray[i+1] = 78/255; colorArray[i+2] = 53/255;
+      } else {
+        colorArray[i] = 125/255; colorArray[i+1] = 23/255; colorArray[i+2] = 86/255;
+      }
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending });
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+
+    const geo = new THREE.TorusKnotGeometry(1.4, 0.35, 128, 16);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xF04E35, emissive: 0x7D1756, wireframe: true, transparent: true, opacity: 0.2 });
+    const knot = new THREE.Mesh(geo, mat);
+    scene.add(knot);
+
+    const light1 = new THREE.PointLight(0xF04E35, 1, 10); light1.position.set(2, 3, 4); scene.add(light1);
+    const light2 = new THREE.PointLight(0x7D1756, 1, 10); light2.position.set(-3, -1, 3); scene.add(light2);
+    scene.add(new THREE.AmbientLight(0x404060));
+    camera.position.z = 7;
+
+    function animateThree() {
+      requestAnimationFrame(animateThree);
+      particlesMesh.rotation.y += 0.0002; particlesMesh.rotation.x += 0.0001;
+      knot.rotation.x += 0.003; knot.rotation.y += 0.005;
       renderer.render(scene, camera);
     }
-    animate();
-    window.addEventListener('resize', ()=>{ camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+    animateThree();
 
-    // scrolltrigger cards
-    gsap.registerPlugin(ScrollTrigger);
-    document.querySelectorAll('.card-3d, .perfil-card, .solinca-box').forEach(el=>{
-      gsap.fromTo(el, {opacity:0, y:40}, {opacity:1, y:0, duration:0.8, scrollTrigger:{trigger:el, start:'top 85%'}});
+    window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+    // Cursor
+    const cursor = document.getElementById('cursor'), follower = document.getElementById('cursor-follower');
+    document.addEventListener('mousemove', (e) => { gsap.to(cursor, { x: e.clientX, y: e.clientY, duration:0.1 }); gsap.to(follower, { x: e.clientX, y: e.clientY, duration:0.3 }); });
+    document.querySelectorAll('a, button, .card-3d, .brainstorm-item, .response-btn').forEach(el => {
+      el.addEventListener('mouseenter', () => { gsap.to(cursor, { scale:1.8, background:'rgba(240,78,53,0.3)' }); gsap.to(follower, { scale:1.8, background:'rgba(240,78,53,0.15)' }); });
+      el.addEventListener('mouseleave', () => { gsap.to(cursor, { scale:1, background:'transparent' }); gsap.to(follower, { scale:1, background:'rgba(240,78,53,0.1)' }); });
     });
+
+    // Funções Interativas
+    
+    // Ponto 1 - Brainstorming
+    function selectBrainstorm(element, tipo) {
+      document.querySelectorAll('.brainstorm-item').forEach(item => item.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      const feedbacks = {
+        'mensalidades': 'Solução: Rever sistema de cobrança, criar fatura detalhada, atendimento personalizado.',
+        'horarios': 'Solução: Inquérito aos sócios para ajustar horários, flexibilidade nas primeiras horas.',
+        'limpeza': 'Solução: Reforçar equipas de limpeza nos picos, checklist diário.',
+        'equipamentos': 'Solução: Manutenção preventiva, app para reportar avarias.',
+        'aulas': 'Solução: Sistema de substituição automática, compensação para alunos.',
+        'atendimento': 'Solução: Formação em comunicação, prémios para melhores atendimentos.'
+      };
+      
+      document.getElementById('brainstormFeedback').innerHTML = feedbacks[tipo] || 'Ótima reclamação para analisar!';
+    }
+    
+    function showCaseDetails(tipo) {
+      alert('Caso analisado em detalhe. Ver documentação completa.');
+    }
+    
+    function startRolePlay(tipo) {
+      const feedbacks = {
+        'agressivo': '🔥 Cliente agressivo: Manter calma, não retaliar, usar frases como "Compreendo a sua frustração" e oferecer soluções concretas.',
+        'passivo': '😶 Cliente passivo: Estimular a falar, fazer perguntas abertas, mostrar interesse genuíno: "Como se sente em relação a..."',
+        'indeciso': '🤔 Cliente indeciso: Simplificar opções, ser direto, ajudar na escolha: "Recomendo esta solução porque..."'
+      };
+      document.getElementById('roleplayFeedback').innerHTML = `<strong>🎭 Simulação ${tipo}:</strong> ${feedbacks[tipo]}`;
+    }
+
+    // Ponto 2 - Simulações
+    function handleCallResponse(tipo) {
+      const feedback = {
+        'erro1': '❌ Mau: Cliente sente-se ignorado. Agrava a situação.',
+        'erro2': '⚠️ Aceitável, mas falta empatia. Podia melhorar.',
+        'erro3': '❌ Péssimo: Cliente sente-se abandonado. Reclamação garantida.',
+        'correto': '✅ Excelente! Cliente sente-se valorizado. Resolução rápida.'
+      };
+      document.getElementById('callFeedback').innerHTML = feedback[tipo];
+    }
+    
+    function handlePresentialResponse(tipo) {
+      const feedback = {
+        'erro1': '❌ Transfere responsabilidade. Cliente irrita-se.',
+        'erro2': '❌ Minimiza o problema. Falta empatia.',
+        'correto1': '✅ Ação imediata. Cliente vê proatividade.',
+        'correto2': '✅ Compensação surpreende positivamente.'
+      };
+      document.getElementById('presentialFeedback').innerHTML = feedback[tipo];
+    }
+    
+    // Drag & Drop Linguagem Corporal
+    function allowDrop(ev) { ev.preventDefault(); }
+    
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.outerHTML + "|" + ev.target.getAttribute('data-type'));
+    }
+    
+    function drop(ev, targetType) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text").split('|');
+      const elementHtml = data[0];
+      const elementType = data[1];
+      
+      if (elementType === targetType) {
+        document.getElementById('bodyLanguageFeedback').innerHTML = '✅ Correto! Boa classificação!';
+        ev.target.innerHTML += '<br>' + elementHtml;
+      } else {
+        document.getElementById('bodyLanguageFeedback').innerHTML = '❌ Tenta novamente - classificação errada';
+      }
+    }
+    
+    function checkAssertive(element, tipo) {
+      const phrases = {
+        'correto': [
+          '"O problema não é meu" → "Vou ajudar a encontrar quem pode resolver"',
+          '"O sistema é lento" → "Vamos verificar os dados, aguarde um momento"',
+          '"Não posso fazer nada" → "Deixe-me ver o que posso fazer por si"'
+        ]
+      };
+      const randomPhrase = phrases[tipo][Math.floor(Math.random() * phrases[tipo].length)];
+      document.getElementById('assertiveResult').innerHTML = randomPhrase;
+    }
+
+    // Ponto 3 - Fluxograma
+    function dragFluxo(ev) {
+      ev.dataTransfer.setData("text", ev.target.outerHTML + "|" + ev.target.getAttribute('data-etapa'));
+    }
+    
+    function allowDropFluxo(ev) { ev.preventDefault(); }
+    
+    function dropFluxo(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text").split('|');
+      const elementHtml = data[0];
+      const etapa = data[1];
+      
+      const container = document.getElementById('fluxoContainer');
+      if (container.innerHTML.includes('Arrasta as etapas')) {
+        container.innerHTML = '';
+      }
+      container.innerHTML += ' ' + elementHtml + ' <i class="fas fa-arrow-right" style="color: var(--laranja-vivo);"></i> ';
+    }
+    
+    function checkFluxograma() {
+      document.getElementById('fluxoFeedback').innerHTML = '✅ Fluxograma correto! 1.Receção → 2.Registo → 3.Análise → 4.Resposta → 5.Melhoria';
+    }
+    
+    function identifyError(tipo) {
+      const errors = {
+        'erro1': '❌ Erro: Transferir responsabilidade. Correto: "Vou verificar por si"',
+        'erro2': '❌ Erro: Interromper cliente. Correto: Escuta ativa primeiro'
+      };
+      document.getElementById('errorFeedback').innerHTML = errors[tipo];
+    }
+    
+    function addProcedure(setor) {
+      const procedures = {
+        'recepcao': 'Receção: Acolher com sorriso, registar reclamação, informar prazo',
+        'backoffice': 'Backoffice: Analisar em 2h, contactar setor responsável, preparar resposta',
+        'gerencia': 'Gerência: Validar soluções, aprovar compensações, monitorizar indicadores'
+      };
+      document.getElementById('proceduresList').innerHTML = `📋 ${procedures[setor]}`;
+    }
+
+    // Ponto 4 - Livro Reclamações
+    function submitReclamacao() {
+      const nome = document.getElementById('nomeReclamante').value || 'Anónimo';
+      const data = document.getElementById('dataReclamacao').value;
+      const desc = document.getElementById('descricaoReclamacao').value || 'Sem descrição';
+      
+      document.getElementById('livroResultado').innerHTML = `
+        ✅ Reclamação registada!<br>
+        <strong>Nome:</strong> ${nome}<br>
+        <strong>Data:</strong> ${data}<br>
+        <strong>Descrição:</strong> ${desc}<br>
+        <span style="color: var(--laranja-vivo);">Prazo resposta: 15 dias úteis</span>
+      `;
+    }
+    
+    function expandPlano(id) {
+      const element = document.getElementById(id);
+      element.style.display = element.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function showDebate(tipo) {
+      document.getElementById('debateContent').innerHTML = 
+        '🎯 Cliente satisfeito: obrigação. Cliente fidelizado: encantamento. A diferença está no pós-reclamação!';
+    }
+
+    // Ponto 5 - Stress
+    function start478() {
+      let count = 4;
+      const timer = document.getElementById('timer478');
+      const interval = setInterval(() => {
+        if (count === 4) { timer.innerHTML = '4 (Inspira)'; count = 7; }
+        else if (count === 7) { timer.innerHTML = '7 (Segura)'; count = 8; }
+        else if (count === 8) { timer.innerHTML = '8 (Expira)'; count = 4; }
+        else { count = 4; }
+      }, 1000);
+      setTimeout(() => clearInterval(interval), 20000);
+    }
+    
+    function startMindful() {
+      const timer = document.getElementById('timerMindful');
+      let phase = 0;
+      const interval = setInterval(() => {
+        phase = (phase + 1) % 6;
+        const waves = ['🌊', '🌊🌊', '🌊🌊🌊', '🌊🌊', '🌊', '·'];
+        timer.innerHTML = waves[phase];
+      }, 800);
+      setTimeout(() => clearInterval(interval), 15000);
+    }
+    
+    function handleCrisis(tipo) {
+      const results = {
+        'ignorar': '❌ Clientes revoltados, queixa no livro, redes sociais negativas, perda de 30% dos sócios',
+        'culpar': '😤 Transferência de responsabilidade, imagem institucional arranhada',
+        'resolver': '✅ Clientes satisfeitos, 80% aceitam remarcação, 20% pedem reembolso - todos fidelizados',
+        'empatia': '💚 Clientes sentem-se compreendidos, 95% mantêm-se sócios, recomendam o clube'
+      };
+      document.getElementById('crisisResult').innerHTML = results[tipo];
+    }
+
+    // Ponto 6 - Solinca (Individual)
+    let reclamacoesChart;
+    
+    window.addEventListener('load', function() {
+      const ctx = document.getElementById('reclamacoesChart').getContext('2d');
+      reclamacoesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Manutenção', 'Horários', 'Mensalidades', 'Aulas', 'Outros'],
+          datasets: [{
+            data: [35, 28, 22, 10, 5],
+            backgroundColor: ['#F04E35', '#ED4F36', '#7D1756', '#7B1556', '#333'],
+            borderColor: 'white',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: 'white' } }
+          }
+        }
+      });
+    });
+    
+    function showSolincaDetail(tipo) {
+      if (tipo === 'tipos') {
+        const detail = document.getElementById('tiposDetail');
+        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+      } else {
+        const detail = document.getElementById('procedimentosDetail');
+        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+    
+    function toggleSolincaItem(id) {
+      const item = document.getElementById(id);
+      item.style.display = item.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function apresentarProjeto() {
+      document.getElementById('apresentacaoResult').innerHTML = `
+        🎉 PROJETO APRESENTADO!<br>
+        <strong>Aluno:</strong> [Seu Nome]<br>
+        <strong>Entidade:</strong> Solinca Norteshopping<br>
+        <strong>Nota esperada:</strong> 20 valores ⭐<br>
+        <p style="margin-top:1rem;">Plano de Gestão de Reclamações implementado com sucesso!<br>
+        Destaques: App de manutenção, formação equipa, follow-up personalizado.</p>
+      `;
+    }
   </script>
 </body>
 </html>
