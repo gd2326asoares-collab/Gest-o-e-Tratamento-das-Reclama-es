@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RECLAMAÇÃO 360º · SOLINCA · PROJETO INTERATIVO</title>
+  <title>SOLINCA · GESTÃO DE RECLAMAÇÕES · PROJETO INTERATIVO</title>
   <!-- Fontes vanguardistas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,18 +18,18 @@
   <!-- Chart.js para gráficos interativos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    /* ----- RESET & CORES ----- */
+    /* ----- RESET & CORES SOLINCA ----- */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --roxo-profundo: #7D1756;
-      --roxo-variante: #7B1556;
-      --laranja-vivo: #F04E35;
-      --laranja-medio: #ED4F36;
+      --roxo-solinca: #7D1756;
+      --roxo-escuro: #5a113f;
+      --laranja-solinca: #F04E35;
+      --laranja-claro: #f5715c;
       --branco-puro: #FFFFFF;
       --bg-dark: #0a0a0a;
       --text-light: #ffffff;
-      --grad-1: linear-gradient(135deg, var(--laranja-vivo), var(--roxo-profundo));
-      --grad-2: linear-gradient(45deg, var(--laranja-medio), var(--roxo-variante));
+      --grad-solinca: linear-gradient(135deg, var(--laranja-solinca), var(--roxo-solinca));
+      --grad-solinca-reverso: linear-gradient(45deg, var(--roxo-solinca), var(--laranja-solinca));
     }
     body {
       font-family: 'Space Grotesk', sans-serif;
@@ -37,9 +37,9 @@
       color: var(--text-light);
       overflow-x: hidden;
     }
-    /* ----- cursor personalizado ----- */
+    /* ----- cursor magnético personalizado ----- */
     .cursor {
-      width: 24px; height: 24px; border: 2px solid var(--laranja-vivo); border-radius: 50%;
+      width: 24px; height: 24px; border: 2px solid var(--laranja-solinca); border-radius: 50%;
       position: fixed; pointer-events: none; z-index: 9999; mix-blend-mode: difference;
       transform: translate(-50%, -50%); transition: transform 0.2s ease;
     }
@@ -48,16 +48,17 @@
       position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%);
       transition: transform 0.4s ease; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);
     }
-    /* ----- navbar ----- */
+    /* ----- navbar com efeito glass ----- */
     nav {
       position: fixed; top: 0; left: 0; width: 100%; padding: 1.8rem 4rem;
       display: flex; justify-content: space-between; align-items: center; z-index: 100;
-      mix-blend-mode: difference; backdrop-filter: blur(4px); background: rgba(10,10,10,0.2);
+      mix-blend-mode: difference; backdrop-filter: blur(8px); background: rgba(10,10,10,0.2);
+      border-bottom: 1px solid rgba(240,78,53,0.2);
     }
     .logo {
       font-family: 'Archivo Black', sans-serif; font-size: 2.2rem;
-      background: var(--grad-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-transform: uppercase;
+      background: var(--grad-solinca); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-transform: uppercase; letter-spacing: 2px;
     }
     .nav-links { display: flex; gap: 3rem; }
     .nav-links a {
@@ -67,35 +68,38 @@
     }
     .nav-links a::before {
       content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
-      background: var(--grad-1); transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+      background: var(--grad-solinca); transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
     }
     .nav-links a:hover::before { width: 100%; }
+    
     /* ----- canvas fundo 3D ----- */
     #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
-    /* ----- secções ----- */
+    
+    /* ----- secções com glass effect ----- */
     section {
       position: relative; min-height: 100vh; padding: 8rem 4rem;
       display: flex; flex-direction: column; justify-content: center;
-      backdrop-filter: blur(12px); background: rgba(10, 10, 10, 0.4);
-      border-bottom: 1px solid rgba(240, 78, 53, 0.15);
+      backdrop-filter: blur(16px); background: rgba(10, 10, 10, 0.5);
+      border-bottom: 1px solid rgba(240, 78, 53, 0.2);
     }
     .section-content { max-width: 1400px; margin: 0 auto; width: 100%; }
-    /* ----- tipografia ----- */
+    
+    /* ----- tipografia impactante ----- */
     h1, h2, h3 { font-family: 'Unbounded', sans-serif; font-weight: 800; line-height: 1; text-transform: uppercase; }
     h1 { font-size: clamp(2.8rem, 10vw, 6rem); margin-bottom: 2rem; letter-spacing: -0.03em; line-height: 1.1; }
     h2 {
       font-size: clamp(3rem, 8vw, 5.5rem); margin-bottom: 2rem;
-      background: var(--grad-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background: var(--grad-solinca); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       display: inline-block;
     }
     .gradient-text {
-      background: var(--grad-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background: var(--grad-solinca); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-size: 200% 200%; animation: gradientFlow 6s ease infinite;
       display: inline-block;
     }
     @keyframes gradientFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
-    /* ----- cards e elementos interativos ----- */
+    /* ----- cards 3D com efeito hover ----- */
     .cards-grid-3d {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
       margin: 4rem 0; perspective: 2000px;
@@ -105,20 +109,21 @@
       border: 1px solid rgba(240, 78, 53, 0.2); border-radius: 40px; padding: 3rem 2rem;
       transform-style: preserve-3d; transform: rotateY(10deg) rotateX(4deg) translateZ(10px);
       transition: all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2); cursor: pointer;
-      box-shadow: 0 30px 40px -30px var(--laranja-vivo);
+      box-shadow: 0 30px 40px -30px var(--laranja-solinca);
     }
     .card-3d:hover {
       transform: rotateY(0deg) rotateX(0deg) translateY(-25px) scale(1.05);
-      box-shadow: 0 40px 70px -20px var(--laranja-vivo); border-color: var(--laranja-vivo);
+      box-shadow: 0 40px 70px -20px var(--laranja-solinca); border-color: var(--laranja-solinca);
     }
     
-    /* ----- componentes interativos personalizados ----- */
+    /* ----- áreas interativas com tema Solinca ----- */
     .interactive-area {
-      background: rgba(125, 23, 86, 0.2);
+      background: rgba(125, 23, 86, 0.15);
       border-radius: 50px;
       padding: 2.5rem;
       margin: 2rem 0;
-      border: 2px solid var(--laranja-vivo);
+      border: 2px solid var(--laranja-solinca);
+      backdrop-filter: blur(10px);
     }
     
     .brainstorm-grid {
@@ -143,11 +148,11 @@
     .brainstorm-item:hover {
       background: rgba(240,78,53,0.2);
       transform: scale(1.02);
-      border-color: var(--laranja-vivo);
+      border-color: var(--laranja-solinca);
     }
     
     .brainstorm-item.selected {
-      background: var(--laranja-vivo);
+      background: var(--laranja-solinca);
       color: var(--bg-dark);
       font-weight: bold;
     }
@@ -156,7 +161,7 @@
       position: absolute;
       top: -10px;
       right: -10px;
-      background: var(--laranja-vivo);
+      background: var(--laranja-solinca);
       color: var(--bg-dark);
       padding: 0.5rem 1rem;
       border-radius: 30px;
@@ -182,7 +187,7 @@
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background: var(--grad-1);
+      background: var(--grad-solinca);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -198,8 +203,8 @@
       font-size: 1.1rem;
     }
     
-    .chat-bubble.client { background: rgba(240,78,53,0.2); border-left: 4px solid var(--laranja-vivo); }
-    .chat-bubble.attendant { background: rgba(125,23,86,0.3); border-left: 4px solid var(--roxo-profundo); }
+    .chat-bubble.client { background: rgba(240,78,53,0.2); border-left: 4px solid var(--laranja-solinca); }
+    .chat-bubble.attendant { background: rgba(125,23,86,0.3); border-left: 4px solid var(--roxo-solinca); }
     
     .response-options {
       display: grid;
@@ -210,7 +215,7 @@
     
     .response-btn {
       background: transparent;
-      border: 2px solid var(--laranja-vivo);
+      border: 2px solid var(--laranja-solinca);
       color: white;
       padding: 1rem;
       border-radius: 30px;
@@ -221,7 +226,7 @@
     }
     
     .response-btn:hover {
-      background: var(--laranja-vivo);
+      background: var(--laranja-solinca);
       color: var(--bg-dark);
       transform: scale(1.02);
     }
@@ -240,21 +245,21 @@
       padding: 1rem 2rem;
       background: rgba(255,255,255,0.03);
       border-radius: 50px;
-      border: 1px dashed var(--laranja-vivo);
-      cursor: move;
+      border: 1px dashed var(--laranja-solinca);
+      cursor: grab;
       transition: all 0.3s;
     }
     
     .linguagem-corporal-card:hover {
-      background: var(--laranja-vivo);
+      background: var(--laranja-solinca);
       color: var(--bg-dark);
       transform: scale(1.05);
     }
     
     .drop-zone {
-      min-height: 100px;
+      min-height: 150px;
       background: rgba(240,78,53,0.1);
-      border: 2px dashed var(--laranja-vivo);
+      border: 2px dashed var(--laranja-solinca);
       border-radius: 30px;
       padding: 2rem;
       margin-top: 1rem;
@@ -274,20 +279,15 @@
       background: rgba(0,0,0,0.3);
       padding: 1.5rem;
       border-radius: 20px;
-      border: 1px solid var(--roxo-profundo);
+      border: 1px solid var(--roxo-solinca);
       cursor: pointer;
       transition: all 0.3s;
     }
     
     .assertive-card:hover {
       transform: translateY(-10px);
-      border-color: var(--laranja-vivo);
-      box-shadow: 0 20px 30px -15px var(--laranja-vivo);
-    }
-    
-    .assertive-card.correct {
-      background: var(--roxo-profundo);
-      border-color: var(--laranja-vivo);
+      border-color: var(--laranja-solinca);
+      box-shadow: 0 20px 30px -15px var(--laranja-solinca);
     }
     
     .fluxograma-builder {
@@ -299,14 +299,14 @@
     }
     
     .fluxo-etapa {
-      background: var(--grad-1);
+      background: var(--grad-solinca);
       color: var(--bg-dark);
       padding: 1.5rem 2.5rem;
       border-radius: 50px;
       font-weight: bold;
       cursor: grab;
       font-size: 1.2rem;
-      box-shadow: 0 10px 20px -5px var(--laranja-vivo);
+      box-shadow: 0 10px 20px -5px var(--laranja-solinca);
     }
     
     .fluxo-container {
@@ -332,14 +332,14 @@
     
     .error-video-card:hover {
       transform: scale(1.02);
-      box-shadow: 0 30px 40px -20px var(--laranja-vivo);
+      box-shadow: 0 30px 40px -20px var(--laranja-solinca);
     }
     
     .error-tag {
       position: absolute;
       top: 20px;
       right: 20px;
-      background: var(--laranja-vivo);
+      background: var(--laranja-solinca);
       color: var(--bg-dark);
       padding: 0.8rem 1.5rem;
       border-radius: 30px;
@@ -355,7 +355,7 @@
     
     .livro-input {
       background: rgba(255,255,255,0.1);
-      border: 2px solid var(--laranja-vivo);
+      border: 2px solid var(--laranja-solinca);
       border-radius: 20px;
       padding: 1rem;
       width: 100%;
@@ -379,7 +379,7 @@
     }
     
     .debate-card {
-      background: linear-gradient(145deg, #7D1756, #4f1038);
+      background: linear-gradient(145deg, var(--roxo-solinca), var(--roxo-escuro));
       border-radius: 30px;
       padding: 2rem;
       margin: 1rem 0;
@@ -389,7 +389,7 @@
     
     .debate-card:hover {
       transform: scale(1.02) rotate(1deg);
-      box-shadow: 0 20px 40px -10px var(--laranja-vivo);
+      box-shadow: 0 20px 40px -10px var(--laranja-solinca);
     }
     
     .stress-control {
@@ -404,13 +404,13 @@
       border-radius: 30px;
       padding: 2rem;
       text-align: center;
-      border: 1px solid var(--laranja-vivo);
+      border: 1px solid var(--laranja-solinca);
     }
     
     .timer-display {
       font-size: 4rem;
       font-weight: bold;
-      color: var(--laranja-vivo);
+      color: var(--laranja-solinca);
       margin: 1rem 0;
     }
     
@@ -419,12 +419,12 @@
       border-radius: 50px;
       padding: 3rem;
       margin: 2rem 0;
-      border: 2px solid var(--laranja-vivo);
+      border: 2px solid var(--laranja-solinca);
     }
     
     .crisis-option {
       background: transparent;
-      border: 2px solid var(--laranja-vivo);
+      border: 2px solid var(--laranja-solinca);
       color: white;
       padding: 1.5rem 2rem;
       border-radius: 50px;
@@ -438,16 +438,16 @@
     }
     
     .crisis-option:hover {
-      background: var(--laranja-vivo);
+      background: var(--laranja-solinca);
       color: var(--bg-dark);
       transform: scale(1.05);
     }
     
     .projeto-solinca {
-      background: linear-gradient(145deg, rgba(125,23,86,0.3), rgba(240,78,53,0.2));
+      background: linear-gradient(145deg, rgba(125,23,86,0.4), rgba(240,78,53,0.3));
       border-radius: 60px;
       padding: 3rem;
-      border: 3px solid var(--laranja-vivo);
+      border: 3px solid var(--laranja-solinca);
       margin: 2rem 0;
     }
     
@@ -457,9 +457,9 @@
       padding: 2rem;
       margin: 2rem 0;
     }
-
+    
     .btn-3d {
-      padding: 1.2rem 3rem; background: var(--grad-1); border: none; border-radius: 60px;
+      padding: 1.2rem 3rem; background: var(--grad-solinca); border: none; border-radius: 60px;
       color: #0a0a0a; font-weight: 700; font-size: 1.2rem; cursor: pointer;
       transform-style: preserve-3d; transform: perspective(600px) translateZ(0);
       transition: all 0.4s ease; position: relative; overflow: hidden;
@@ -470,8 +470,14 @@
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
       transition: left 0.6s ease;
     }
-    .btn-3d:hover { transform: perspective(600px) translateZ(30px) scale(1.05); box-shadow: 0 25px 40px -10px var(--laranja-vivo); }
+    .btn-3d:hover { transform: perspective(600px) translateZ(30px) scale(1.05); box-shadow: 0 25px 40px -10px var(--laranja-solinca); }
     .btn-3d:hover::before { left: 100%; }
+    
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--laranja-solinca);
+    }
     
     @media (max-width: 768px) {
       section { padding: 6rem 1.5rem; }
@@ -489,25 +495,26 @@
   <div id="canvas-container"></div>
 
   <nav>
-    <div class="logo">R360°</div>
+    <div class="logo">SOLINCA<span style="color: var(--laranja-solinca);">360°</span></div>
     <div class="nav-links">
       <a href="#home">Home</a>
-      <a href="#conceito">Conceito</a>
+      <a href="#conceito">Perfis</a>
       <a href="#atendimento">Atendimento</a>
       <a href="#sistema">Sistema</a>
-      <a href="#legislacao">Legislação</a>
+      <a href="#legislacao">Lei</a>
       <a href="#crise">Crise</a>
-      <a href="#solinca">Solinca</a>
+      <a href="#solinca">Projeto</a>
     </div>
   </nav>
 
   <!-- HOME -->
   <section id="home">
     <div class="section-content">
-      <h1><span class="gradient-text">GESTÃO DE</span><br><span class="gradient-text">RECLAMAÇÕES</span></h1>
-      <p style="font-size: 1.8rem; max-width: 800px; margin-bottom: 3rem; font-weight: 300;">UFCD 7266 · Projeto Interativo · Solinca Norteshopping</p>
+      <h1><span class="gradient-text">SOLINCA</span><br><span class="gradient-text">NORTHSHOPPING</span></h1>
+      <p style="font-size: 1.8rem; max-width: 800px; margin-bottom: 3rem; font-weight: 300;">UFCD 7266 · Gestão e Tratamento de Reclamações · Projeto Final</p>
       <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-        <button class="btn-3d" onclick="scrollToSection('conceito')">COMEÇAR</button>
+        <button class="btn-3d" onclick="scrollToSection('solinca')">VER PROJETO</button>
+        <button class="btn-3d" onclick="scrollToSection('conceito')">EXPLORAR</button>
       </div>
     </div>
   </section>
@@ -515,76 +522,76 @@
   <!-- CONCEITO: Brainstorming + Role Play -->
   <section id="conceito">
     <div class="section-content">
-      <h2>CONCEITO & PERFIS</h2>
+      <h2>PERFIS & RECLAMAÇÕES</h2>
       
       <!-- Brainstorming Interativo -->
       <div class="interactive-area">
-        <h3><i class="fas fa-brain"></i> Brainstorming: Que reclamações num clube desportivo?</h3>
+        <h3><i class="fas fa-brain"></i> Brainstorming: Que reclamações na Solinca?</h3>
         <div class="brainstorm-grid" id="brainstormGrid">
           <div class="brainstorm-item" onclick="selectBrainstorm(this, 'mensalidades')">
-            <i class="fas fa-euro-sign"></i> Mensalidades abusivas
+            <i class="fas fa-euro-sign"></i> Mensalidades / Faturação
           </div>
           <div class="brainstorm-item" onclick="selectBrainstorm(this, 'horarios')">
-            <i class="fas fa-clock"></i> Horários limitados
+            <i class="fas fa-clock"></i> Horários / Lotação
           </div>
           <div class="brainstorm-item" onclick="selectBrainstorm(this, 'limpeza')">
-            <i class="fas fa-broom"></i> Falta de limpeza
+            <i class="fas fa-broom"></i> Limpeza / Balneários
           </div>
           <div class="brainstorm-item" onclick="selectBrainstorm(this, 'equipamentos')">
             <i class="fas fa-dumbbell"></i> Equipamentos avariados
           </div>
           <div class="brainstorm-item" onclick="selectBrainstorm(this, 'aulas')">
-            <i class="fas fa-user-friends"></i> Aulas sem professor
+            <i class="fas fa-user-friends"></i> Aulas / Instrutores
           </div>
           <div class="brainstorm-item" onclick="selectBrainstorm(this, 'atendimento')">
-            <i class="fas fa-headset"></i> Mau atendimento
+            <i class="fas fa-headset"></i> Atendimento / App
           </div>
         </div>
         <div id="brainstormFeedback" style="margin-top: 2rem; padding: 1.5rem; background: rgba(0,0,0,0.5); border-radius: 30px;">
-          👆 Clica nos itens para explorar soluções
+          👆 Clica nos itens para explorar soluções específicas Solinca
         </div>
       </div>
 
-      <!-- Casos Reais -->
+      <!-- Casos Reais Solinca -->
       <div class="cards-grid-3d">
         <div class="card-3d" onclick="showCaseDetails('mensalidade')">
           <i class="fas fa-file-invoice"></i>
-          <h3>Mensalidade duplicada</h3>
-          <p>Cliente pagou e apareceu débito novamente. Como resolver?</p>
+          <h3>Mensalidade em atraso</h3>
+          <p>Cliente pagou mas sistema acusava dívida. Como resolver?</p>
         </div>
         <div class="card-3d" onclick="showCaseDetails('horario')">
           <i class="fas fa-calendar-times"></i>
-          <h3>Aula cancelada</h3>
-          <p>Spinning das 19h cancelada sem aviso. 10 clientes revoltados.</p>
+          <h3>Aula de cycling cancelada</h3>
+          <p>20 clientes à espera. Aviso só no local.</p>
         </div>
         <div class="card-3d" onclick="showCaseDetails('instalacoes')">
           <i class="fas fa-shower"></i>
-          <h3>Balneários sem água</h3>
-          <p>3 dias sem água quente. Reclamações no livro.</p>
+          <h3>Balneários com infiltrações</h3>
+          <p>Reclamações recorrentes no livro.</p>
         </div>
       </div>
 
       <!-- Role Play Interativo -->
       <div class="interactive-area" style="position: relative;">
         <span class="roleplay-badge">🎭 ROLE PLAY</span>
-        <h3>Jogo de Papéis: Tipos de Clientes</h3>
+        <h3>Jogo de Papéis: Tipos de Clientes Solinca</h3>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
           <div class="card-3d" style="background: rgba(240,78,53,0.2); padding: 2rem;" onclick="startRolePlay('agressivo')">
             <i class="fas fa-fire" style="font-size: 3rem;"></i>
             <h4>Agressivo</h4>
-            <p>"Isto é um roubo! Vou pôr isto nas redes sociais!"</p>
+            <p>"ISTO É UM ABSURDO! PAGO 50€ PARA MÁQUINAS AVARIADAS!"</p>
             <button class="btn-3d" style="margin-top: 1rem; padding: 0.8rem 1.5rem; font-size: 1rem;" onclick="event.stopPropagation(); startRolePlay('agressivo')">SIMULAR</button>
           </div>
           <div class="card-3d" style="background: rgba(125,23,86,0.2); padding: 2rem;" onclick="startRolePlay('passivo')">
             <i class="fas fa-ghost" style="font-size: 3rem;"></i>
             <h4>Passivo</h4>
-            <p>"Não tem problema... eu espero... (mas nunca mais volta)"</p>
+            <p>"Desculpe... acho que... não tem importância..." (e muda de ginásio)</p>
             <button class="btn-3d" style="margin-top: 1rem; padding: 0.8rem 1.5rem; font-size: 1rem;" onclick="event.stopPropagation(); startRolePlay('passivo')">SIMULAR</button>
           </div>
           <div class="card-3d" style="background: linear-gradient(145deg, #7D1756, #F04E35); padding: 2rem;" onclick="startRolePlay('indeciso')">
             <i class="fas fa-question" style="font-size: 3rem;"></i>
             <h4>Indeciso</h4>
-            <p>"Acho que sim... ou talvez não... o que acha melhor?"</p>
+            <p>"Não sei se reclamo... talvez mude... ou não..."</p>
             <button class="btn-3d" style="margin-top: 1rem; padding: 0.8rem 1.5rem; font-size: 1rem;" onclick="event.stopPropagation(); startRolePlay('indeciso')">SIMULAR</button>
           </div>
         </div>
@@ -598,68 +605,67 @@
   <!-- ATENDIMENTO: Simulações + Linguagem Corporal + Frases Assertivas -->
   <section id="atendimento">
     <div class="section-content">
-      <h2>ATENDIMENTO & COMUNICAÇÃO</h2>
+      <h2>ATENDIMENTO SOLINCA</h2>
 
       <!-- Simulação Atendimento -->
       <div class="interactive-area">
-        <h3><i class="fas fa-phone-alt"></i> Simulação: Atendimento Presencial e Telefónico</h3>
+        <h3><i class="fas fa-phone-alt"></i> Simulação: Atendimento Solinca</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
           <div class="chat-simulation">
-            <h4>📞 Chamada Telefónica</h4>
+            <h4>📞 Chamada - Reembolso</h4>
             <div class="chat-message">
               <div class="chat-avatar">👤</div>
               <div class="chat-bubble client">
-                <strong>Cliente:</strong> "Bom dia, sou sócio há 3 anos e hoje não consegui entrar no ginásio porque o meu cartão foi desativado!"
+                <strong>Sócio:</strong> "Já passaram 15 dias e o reembolso não entrou no cartão Continente!"
               </div>
             </div>
             <div class="response-options">
-              <button class="response-btn" onclick="handleCallResponse('erro1')">"Deve ser erro do sistema"</button>
-              <button class="response-btn" onclick="handleCallResponse('erro2')">"Vou verificar imediatamente"</button>
-              <button class="response-btn" onclick="handleCallResponse('erro3')">"Não sou eu que trato disso"</button>
-              <button class="response-btn" onclick="handleCallResponse('correto')">"Compreendo, deixe-me resolver já"</button>
+              <button class="response-btn" onclick="handleCallResponse('erro1')">"Não sou eu que trato disso"</button>
+              <button class="response-btn" onclick="handleCallResponse('erro2')">"O sistema deve ter falhado"</button>
+              <button class="response-btn" onclick="handleCallResponse('correto')">"Vou verificar e resolver hoje"</button>
             </div>
             <div id="callFeedback" class="feedback-message"></div>
           </div>
 
           <div class="chat-simulation">
-            <h4>🏢 Atendimento Presencial</h4>
+            <h4>🏢 Presencial - Máquina avariada</h4>
             <div class="chat-message">
               <div class="chat-avatar">👩</div>
               <div class="chat-bubble client">
-                <strong>Cliente:</strong> "A máquina de passadeiras está avariada há uma semana!"
+                <strong>Sócia:</strong> "A passadeira que uso todos os dias está avariada há 1 semana!"
               </div>
             </div>
             <div class="response-options">
-              <button class="response-btn" onclick="handlePresentialResponse('erro1')">"Já mandei reclamação"</button>
-              <button class="response-btn" onclick="handlePresentialResponse('erro2')">"Pode usar outra"</button>
-              <button class="response-btn" onclick="handlePresentialResponse('correto1')">"Vou chamar o técnico"</button>
-              <button class="response-btn" onclick="handlePresentialResponse('correto2')">"Oferecemos um day-pass"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('erro1')">"Pode usar outra"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('erro2')">"Já mandei reclamação"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('correto1')">"Vou agilizar a reparação"</button>
+              <button class="response-btn" onclick="handlePresentialResponse('correto2')">"Oferecemos uma aula de PT"</button>
             </div>
             <div id="presentialFeedback" class="feedback-message"></div>
           </div>
         </div>
       </div>
 
-      <!-- Linguagem Corporal (Drag & Drop simplificado) -->
+      <!-- Linguagem Corporal -->
       <div class="interactive-area">
-        <h3><i class="fas fa-people-arrows"></i> Exercício: Linguagem Corporal</h3>
+        <h3><i class="fas fa-people-arrows"></i> Linguagem Corporal Solinca</h3>
         <p>Arrasta as ações para o grupo correto:</p>
         <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0;">
           <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">😊 Sorrir</span>
           <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">👀 Contacto visual</span>
-          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">🫂 Postura aberta</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="positiva">🫂 Inclinar corpo</span>
           <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">🙅‍♂️ Braços cruzados</span>
-          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">😤 Suspiros</span>
+          <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">😤 Suspirar</span>
           <span class="linguagem-corporal-card" draggable="true" ondragstart="drag(event)" data-type="negativa">📱 Olhar telemóvel</span>
         </div>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
           <div class="drop-zone" ondragover="allowDrop(event)" ondrop="drop(event, 'positiva')" id="dropPositiva">
-            <h4>✅ Comunicação Positiva</h4>
+            <h4>✅ Atendimento Profissional</h4>
           </div>
           <div class="drop-zone" ondragover="allowDrop(event)" ondrop="drop(event, 'negativa')" id="dropNegativa">
-            <h4>❌ Comunicação Negativa</h4>
+            <h4>❌ Erros a Evitar</h4>
           </div>
         </div>
         <div id="bodyLanguageFeedback" style="margin-top: 1rem; font-size: 1.3rem;"></div>
@@ -667,19 +673,19 @@
 
       <!-- Frases Assertivas -->
       <div class="interactive-area">
-        <h3><i class="fas fa-check-double"></i> Construção de Frases Assertivas</h3>
+        <h3><i class="fas fa-check-double"></i> Frases Assertivas Solinca</h3>
         <div class="assertive-exercise">
           <div class="assertive-card" onclick="checkAssertive(this, 'correto1')">
-            <p style="font-size: 1.2rem;">"O problema não é meu"</p>
-            <span class="gradient-text">👉 Clique para transformar</span>
+            <p style="font-size: 1.2rem;">"Não sou responsável pelos reembolsos"</p>
+            <span class="gradient-text">👉 Transformar</span>
           </div>
           <div class="assertive-card" onclick="checkAssertive(this, 'correto2')">
-            <p style="font-size: 1.2rem;">"O sistema é lento"</p>
-            <span class="gradient-text">👉 Clique para transformar</span>
+            <p style="font-size: 1.2rem;">"A app é que é lenta"</p>
+            <span class="gradient-text">👉 Transformar</span>
           </div>
           <div class="assertive-card" onclick="checkAssertive(this, 'correto3')">
-            <p style="font-size: 1.2rem;">"Não posso fazer nada"</p>
-            <span class="gradient-text">👉 Clique para transformar</span>
+            <p style="font-size: 1.2rem;">"Não posso fazer nada sobre as avarias"</p>
+            <span class="gradient-text">👉 Transformar</span>
           </div>
         </div>
         <div id="assertiveResult" style="margin-top: 2rem; padding: 2rem; background: rgba(125,23,86,0.3); border-radius: 30px; font-size: 1.5rem; text-align: center;">
@@ -692,11 +698,11 @@
   <!-- SISTEMA: Fluxograma + Erros + Procedimentos -->
   <section id="sistema">
     <div class="section-content">
-      <h2>SISTEMA DE RECLAMAÇÕES</h2>
+      <h2>SISTEMA SOLINCA</h2>
 
       <!-- Fluxograma Interativo -->
       <div class="interactive-area">
-        <h3><i class="fas fa-diagram-project"></i> Cria o Fluxograma - Ginásio FIT360</h3>
+        <h3><i class="fas fa-diagram-project"></i> Fluxograma Solinca Norteshopping</h3>
         <p>Organiza as etapas por ordem correta:</p>
         <div class="fluxograma-builder">
           <span class="fluxo-etapa" draggable="true" ondragstart="dragFluxo(event)" data-etapa="1">📥 RECEÇÃO</span>
@@ -707,10 +713,10 @@
         </div>
         
         <div class="fluxo-container" id="fluxoContainer" ondragover="allowDropFluxo(event)" ondrop="dropFluxo(event)">
-          <span style="color: var(--laranja-vivo);">Arrasta as etapas para aqui</span>
+          <span style="color: var(--laranja-solinca);">Arrasta as etapas para construir o fluxo</span>
         </div>
         
-        <button class="btn-3d" onclick="checkFluxograma()" style="margin-top: 2rem;">✅ VERIFICAR ORDEM</button>
+        <button class="btn-3d" onclick="checkFluxograma()" style="margin-top: 2rem;">✅ VERIFICAR</button>
         <div id="fluxoFeedback" style="margin-top: 1rem;"></div>
       </div>
 
@@ -720,43 +726,18 @@
           <div class="error-tag">🎬 CENA 1</div>
           <div style="background: rgba(240,78,53,0.2); padding: 3rem; border-radius: 30px; text-align: center;">
             <i class="fas fa-play-circle" style="font-size: 5rem;"></i>
-            <p style="margin-top: 1rem;">"Cliente reclama, funcionário diz: 'Não tenho nada com isso'"</p>
+            <p style="margin-top: 1rem;">"Isso não é comigo, sou só da receção"</p>
           </div>
         </div>
         <div class="error-video-card" onclick="identifyError('erro2')">
           <div class="error-tag">🎬 CENA 2</div>
           <div style="background: rgba(125,23,86,0.2); padding: 3rem; border-radius: 30px; text-align: center;">
             <i class="fas fa-play-circle" style="font-size: 5rem;"></i>
-            <p style="margin-top: 1rem;">"Funcionário interrompe: 'Deixe-me explicar uma coisa...'"</p>
+            <p style="margin-top: 1rem;">"O sistema é que falhou, não fui eu"</p>
           </div>
         </div>
       </div>
       <div id="errorFeedback" style="padding: 2rem; background: rgba(0,0,0,0.5); border-radius: 30px;"></div>
-
-      <!-- Trabalho Grupo: Procedimentos -->
-      <div class="interactive-area">
-        <h3><i class="fas fa-users"></i> Trabalho de Grupo: Procedimentos Internos</h3>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
-          <div class="card-3d" style="padding: 2rem;" onclick="addProcedure('recepcao')">
-            <i class="fas fa-door-open"></i>
-            <h4>Receção</h4>
-            <p>Clique para adicionar procedimento</p>
-          </div>
-          <div class="card-3d" style="padding: 2rem;" onclick="addProcedure('backoffice')">
-            <i class="fas fa-laptop"></i>
-            <h4>Backoffice</h4>
-            <p>Clique para adicionar procedimento</p>
-          </div>
-          <div class="card-3d" style="padding: 2rem;" onclick="addProcedure('gerencia')">
-            <i class="fas fa-chart-line"></i>
-            <h4>Gerência</h4>
-            <p>Clique para adicionar procedimento</p>
-          </div>
-        </div>
-        <div id="proceduresList" style="margin-top: 2rem; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 30px;">
-          📋 Procedimentos definidos aparecerão aqui
-        </div>
-      </div>
     </div>
   </section>
 
@@ -767,14 +748,14 @@
 
       <!-- Livro Reclamações Simulado -->
       <div class="livro-reclamacoes">
-        <h3><i class="fas fa-book"></i> Simulação: Livro de Reclamações</h3>
-        <p style="font-size: 1.3rem; margin-bottom: 2rem;">Preenche os campos (simulação):</p>
+        <h3><i class="fas fa-book"></i> Livro de Reclamações (Simulação)</h3>
+        <p style="font-size: 1.3rem; margin-bottom: 2rem;">Preenche os campos:</p>
         
-        <input type="text" class="livro-input" id="nomeReclamante" placeholder="Nome do reclamante">
-        <input type="text" class="livro-input" id="dataReclamacao" placeholder="Data" value="2025-02-27">
-        <textarea class="livro-input" id="descricaoReclamacao" rows="4" placeholder="Descrição da reclamação..."></textarea>
+        <input type="text" class="livro-input" id="nomeReclamante" placeholder="Nome do sócio">
+        <input type="text" class="livro-input" id="dataReclamacao" placeholder="Data" value="2025-03-05">
+        <textarea class="livro-input" id="descricaoReclamacao" rows="4" placeholder="Descrição da reclamação (ex.: balneário com infiltrações)"></textarea>
         
-        <button class="btn-3d" onclick="submitReclamacao()">📤 SUBMETER RECLAMAÇÃO</button>
+        <button class="btn-3d" onclick="submitReclamacao()">📤 REGISTAR RECLAMAÇÃO</button>
         
         <div id="livroResultado" style="margin-top: 2rem; padding: 1.5rem; background: rgba(125,23,86,0.3); border-radius: 20px;">
           Aguardando preenchimento...
@@ -783,42 +764,42 @@
 
       <!-- Mini Plano Melhoria -->
       <div class="interactive-area">
-        <h3><i class="fas fa-chart-line"></i> Plano de Melhoria - Escola Desportiva</h3>
+        <h3><i class="fas fa-chart-line"></i> Plano de Melhoria - Solinca</h3>
         <div class="plano-melhoria-item" onclick="expandPlano('area1')">
-          <i class="fas fa-dumbbell"></i> Área: Equipamentos
+          <i class="fas fa-dumbbell"></i> Equipamentos
           <span style="float: right;">▼</span>
           <div id="area1" style="display: none; margin-top: 1rem;">
-            <p>Ação corretiva: Manutenção preventiva mensal</p>
-            <p>Responsável: Técnico de manutenção</p>
-            <p>Prazo: 7 dias</p>
+            <p>✅ Manutenção preventiva quinzenal</p>
+            <p>👤 Responsável: Diretor Técnico</p>
+            <p>⏱️ Prazo: 15 dias</p>
           </div>
         </div>
         <div class="plano-melhoria-item" onclick="expandPlano('area2')">
-          <i class="fas fa-users"></i> Área: Atendimento
+          <i class="fas fa-users"></i> Atendimento
           <span style="float: right;">▼</span>
           <div id="area2" style="display: none; margin-top: 1rem;">
-            <p>Ação corretiva: Formação em comunicação</p>
-            <p>Responsável: RH</p>
-            <p>Prazo: 15 dias</p>
+            <p>✅ Formação em comunicação</p>
+            <p>👤 Responsável: RH</p>
+            <p>⏱️ Prazo: 30 dias</p>
           </div>
         </div>
         <div class="plano-melhoria-item" onclick="expandPlano('area3')">
-          <i class="fas fa-clock"></i> Área: Horários
+          <i class="fas fa-mobile-alt"></i> App / Tecnologia
           <span style="float: right;">▼</span>
           <div id="area3" style="display: none; margin-top: 1rem;">
-            <p>Ação corretiva: Ajuste de horários de pico</p>
-            <p>Responsável: Direção</p>
-            <p>Prazo: 30 dias</p>
+            <p>✅ Cartões físicos alternativos</p>
+            <p>👤 Responsável: Coordenador</p>
+            <p>⏱️ Prazo: Imediato</p>
           </div>
         </div>
       </div>
 
       <!-- Debate Interativo -->
       <div class="debate-card" onclick="showDebate()">
-        <h4>🎤 Debate: Cliente Satisfeito vs Cliente Fidelizado</h4>
+        <h4>🎤 Debate: Satisfeito vs Fidelizado</h4>
         <p style="font-size: 1.3rem; margin: 1rem 0;">Clique para participar</p>
         <div id="debateContent" style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 20px;">
-          A sua opinião aparecerá aqui...
+          Qual a diferença para a Solinca?
         </div>
       </div>
     </div>
@@ -845,16 +826,16 @@
         </div>
       </div>
 
-      <!-- Simulação Crise -->
+      <!-- Simulação Crise Solinca -->
       <div class="crisis-simulation">
-        <h3 style="font-size: 2.5rem;">🚨 SITUAÇÃO DE CRISE</h3>
-        <p style="font-size: 1.5rem;">Cancelamento de Prova de Natação (100 inscritos)</p>
+        <h3 style="font-size: 2.5rem;">🚨 CRISE SOLINCA</h3>
+        <p style="font-size: 1.5rem;">Cancelamento de todas as aulas por avaria elétrica (18h, 100+ sócios)</p>
         
         <div style="margin: 3rem 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
-          <button class="crisis-option" onclick="handleCrisis('ignorar')">❌ "Não é problema meu"</button>
-          <button class="crisis-option" onclick="handleCrisis('culpar')">😤 "Culpa da Câmara"</button>
-          <button class="crisis-option" onclick="handleCrisis('resolver')">✅ "Remarcamos e oferecemos day-pass"</button>
-          <button class="crisis-option" onclick="handleCrisis('empatia')">💚 "Compreendo, vamos resolver"</button>
+          <button class="crisis-option" onclick="handleCrisis('ignorar')">❌ "Não é connosco"</button>
+          <button class="crisis-option" onclick="handleCrisis('culpar')">😤 "Culpa do shopping"</button>
+          <button class="crisis-option" onclick="handleCrisis('resolver')">✅ Remarcar + day-pass</button>
+          <button class="crisis-option" onclick="handleCrisis('empatia')">💚 Compreensão + compensação</button>
         </div>
         
         <div id="crisisResult" style="padding: 2rem; background: rgba(0,0,0,0.5); border-radius: 30px; font-size: 1.4rem;">
@@ -864,14 +845,14 @@
     </div>
   </section>
 
-  <!-- SOLINCA: Projeto Individual -->
+  <!-- SOLINCA: Projeto Final -->
   <section id="solinca">
     <div class="section-content">
-      <h2>PROJETO SOLINCA</h2>
+      <h2>PROJETO SOLINCA NS</h2>
       
       <div class="projeto-solinca">
-        <h3 style="font-size: 2.5rem;">🏋️ SOLINCA NORTESHOPPING</h3>
-        <p style="font-size: 1.5rem;">Análise Individual · Gestão de Reclamações</p>
+        <h3 style="font-size: 2.5rem;">🏋️ SOLINCA NORTHSHOPPING</h3>
+        <p style="font-size: 1.5rem;">Plano de Gestão de Reclamações · 2025</p>
         
         <!-- Estatísticas interativas -->
         <div class="chart-container">
@@ -882,48 +863,61 @@
           <div class="card-3d" style="padding: 2rem;" onclick="showSolincaDetail('tipos')">
             <i class="fas fa-list"></i>
             <h4>Tipos de Reclamações</h4>
-            <p>Manutenção · Horários · Mensalidades · Aulas</p>
-            <div id="tiposDetail" style="display: none; margin-top: 1rem;">
+            <p>Dados reais Solinca</p>
+            <div id="tiposDetail" style="display: none; margin-top: 1rem; text-align: left;">
               <ul style="list-style: none;">
-                <li>🔸 Máquinas avariadas (35%)</li>
-                <li>🔸 Lotação excessiva (28%)</li>
-                <li>🔸 Cancelamento aulas (22%)</li>
-                <li>🔸 Faturação (15%)</li>
+                <li>🔸 Faturação/Reembolsos: 40%</li>
+                <li>🔸 Equipamentos avariados: 30%</li>
+                <li>🔸 Segurança (furtos): 15%</li>
+                <li>🔸 Atendimento: 10%</li>
+                <li>🔸 App/Tecnologia: 5%</li>
               </ul>
             </div>
           </div>
           <div class="card-3d" style="padding: 2rem;" onclick="showSolincaDetail('procedimentos')">
             <i class="fas fa-clipboard-list"></i>
-            <h4>Procedimentos Atuais</h4>
-            <p>Clique para ver proposta</p>
-            <div id="procedimentosDetail" style="display: none; margin-top: 1rem;">
+            <h4>Procedimentos Propostos</h4>
+            <p>Clique para ver</p>
+            <div id="procedimentosDetail" style="display: none; margin-top: 1rem; text-align: left;">
               <p>1. Receção acolhe e regista</p>
-              <p>2. Supervisor analisa</p>
-              <p>3. Resposta em 24h</p>
-              <p>4. Seguimento com oferta</p>
+              <p>2. Classificação (categoria)</p>
+              <p>3. Responsável atribuído</p>
+              <p>4. Resposta em 24h/48h</p>
+              <p>5. Follow-up + compensação</p>
             </div>
           </div>
         </div>
 
-        <!-- Plano de Melhoria Específico -->
+        <!-- Plano de Melhoria Específico Solinca -->
         <div class="interactive-area" style="background: rgba(240,78,53,0.1);">
-          <h3><i class="fas fa-clipboard-check"></i> Meu Plano para Solinca</h3>
+          <h3><i class="fas fa-clipboard-check"></i> Plano de Ação Solinca NS</h3>
           
           <div class="plano-melhoria-item" onclick="toggleSolincaItem('item1')">
-            📌 Implementar check-in digital
+            📌 Reembolsos no cartão Continente
             <span style="float: right;">▼</span>
-            <div id="item1" style="display: none; margin-top: 1rem;">Reduz filas e reclamações de acesso</div>
+            <div id="item1" style="display: none; margin-top: 1rem;">Alerta automático para processar em 5 dias úteis</div>
           </div>
           <div class="plano-melhoria-item" onclick="toggleSolincaItem('item2')">
-            📌 App com manutenção em tempo real
+            📌 Manutenção preventiva
             <span style="float: right;">▼</span>
-            <div id="item2" style="display: none; margin-top: 1rem;">Clientes reportam avarias diretamente</div>
+            <div id="item2" style="display: none; margin-top: 1rem;">Checklist quinzenal de equipamentos</div>
           </div>
           <div class="plano-melhoria-item" onclick="toggleSolincaItem('item3')">
-            📌 Formação mensal em atendimento
+            📌 Segurança nos balneários
             <span style="float: right;">▼</span>
-            <div id="item3" style="display: none; margin-top: 1rem;">Equipa treinada para reclamações</div>
+            <div id="item3" style="display: none; margin-top: 1rem;">Reforço de rondas + cacifos com fechadura eletrónica</div>
           </div>
+          <div class="plano-melhoria-item" onclick="toggleSolincaItem('item4')">
+            📌 Resposta a emails em 24h
+            <span style="float: right;">▼</span>
+            <div id="item4" style="display: none; margin-top: 1rem;">Procedimento obrigatório com alertas</div>
+          </div>
+        </div>
+
+        <!-- Resumo Final -->
+        <div style="margin-top: 3rem; padding: 2rem; background: rgba(0,0,0,0.5); border-radius: 30px; text-align: center;">
+          <p style="font-size: 1.8rem; margin-bottom: 1rem;">🎯 OBJETIVO</p>
+          <p style="font-size: 1.4rem;">Transformar reclamações em oportunidades de fidelização na Solinca Norteshopping</p>
         </div>
       </div>
     </div>
@@ -970,7 +964,7 @@
     scene.add(particlesMesh);
 
     const geo = new THREE.TorusKnotGeometry(1.4, 0.35, 128, 16);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xF04E35, emissive: 0x7D1756, wireframe: true, transparent: true, opacity: 0.2 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xF04E35, emissive: 0x7D1756, wireframe: true, transparent: true, opacity: 0.15 });
     const knot = new THREE.Mesh(geo, mat);
     scene.add(knot);
 
@@ -989,12 +983,22 @@
 
     window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-    // Cursor
+    // Cursor magnético
     const cursor = document.getElementById('cursor'), follower = document.getElementById('cursor-follower');
-    document.addEventListener('mousemove', (e) => { gsap.to(cursor, { x: e.clientX, y: e.clientY, duration:0.1 }); gsap.to(follower, { x: e.clientX, y: e.clientY, duration:0.3 }); });
-    document.querySelectorAll('a, button, .card-3d, .brainstorm-item, .response-btn').forEach(el => {
-      el.addEventListener('mouseenter', () => { gsap.to(cursor, { scale:1.8, background:'rgba(240,78,53,0.3)' }); gsap.to(follower, { scale:1.8, background:'rgba(240,78,53,0.15)' }); });
-      el.addEventListener('mouseleave', () => { gsap.to(cursor, { scale:1, background:'transparent' }); gsap.to(follower, { scale:1, background:'rgba(240,78,53,0.1)' }); });
+    document.addEventListener('mousemove', (e) => { 
+      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 }); 
+      gsap.to(follower, { x: e.clientX, y: e.clientY, duration: 0.3 }); 
+    });
+    
+    document.querySelectorAll('a, button, .card-3d, .brainstorm-item, .response-btn, .fluxo-etapa, .plano-melhoria-item').forEach(el => {
+      el.addEventListener('mouseenter', () => { 
+        gsap.to(cursor, { scale: 1.8, background: 'rgba(240,78,53,0.3)' }); 
+        gsap.to(follower, { scale: 1.8, background: 'rgba(240,78,53,0.2)' }); 
+      });
+      el.addEventListener('mouseleave', () => { 
+        gsap.to(cursor, { scale: 1, background: 'transparent' }); 
+        gsap.to(follower, { scale: 1, background: 'rgba(240,78,53,0.1)' }); 
+      });
     });
 
     // Funções Interativas
@@ -1005,26 +1009,26 @@
       element.classList.add('selected');
       
       const feedbacks = {
-        'mensalidades': '✅ Solução: Rever sistema de cobrança, criar fatura detalhada, atendimento personalizado.',
-        'horarios': '✅ Solução: Inquérito aos sócios para ajustar horários, flexibilidade nas primeiras horas.',
-        'limpeza': '✅ Solução: Reforçar equipas de limpeza nos picos, checklist diário.',
-        'equipamentos': '✅ Solução: Manutenção preventiva, app para reportar avarias.',
-        'aulas': '✅ Solução: Sistema de substituição automática, compensação para alunos.',
-        'atendimento': '✅ Solução: Formação em comunicação, prémios para melhores atendimentos.'
+        'mensalidades': '✅ Solução Solinca: Rever sistema de reembolsos + alertas para processamento em 5 dias.',
+        'horarios': '✅ Solução: Inquérito aos sócios para ajustar horários de pico.',
+        'limpeza': '✅ Solução: Reforçar limpeza nos balneários ao final da tarde.',
+        'equipamentos': '✅ Solução: Manutenção preventiva quinzenal + app para reportar avarias.',
+        'aulas': '✅ Solução: Sistema de notificação antecipada de cancelamentos.',
+        'atendimento': '✅ Solução: Formação em comunicação + resposta a emails em 24h.'
       };
       
-      document.getElementById('brainstormFeedback').innerHTML = feedbacks[tipo] || 'Ótima reclamação para analisar!';
+      document.getElementById('brainstormFeedback').innerHTML = feedbacks[tipo] || '✅ Solução analisada!';
     }
     
     function showCaseDetails(tipo) {
-      alert('Caso analisado em detalhe. Ver documentação completa.');
+      alert('Caso analisado em detalhe. Ver documentação completa no projeto.');
     }
     
     function startRolePlay(tipo) {
       const feedbacks = {
-        'agressivo': '🔥 Cliente agressivo: Manter calma, não retaliar, usar frases como "Compreendo a sua frustração" e oferecer soluções concretas.',
-        'passivo': '😶 Cliente passivo: Estimular a falar, fazer perguntas abertas, mostrar interesse genuíno: "Como se sente em relação a..."',
-        'indeciso': '🤔 Cliente indeciso: Simplificar opções, ser direto, ajudar na escolha: "Recomendo esta solução porque..."'
+        'agressivo': '🔥 Cliente agressivo: Manter calma, não retaliar, usar "Compreendo a sua frustração" e agir rápido.',
+        'passivo': '😶 Cliente passivo: Estimular com perguntas abertas: "Como se sente em relação a esta situação?"',
+        'indeciso': '🤔 Cliente indeciso: Simplificar opções: "Recomendo esta solução porque é a mais vantajosa para si."'
       };
       document.getElementById('roleplayFeedback').innerHTML = `<strong>🎭 Simulação ${tipo}:</strong> ${feedbacks[tipo]}`;
     }
@@ -1032,20 +1036,19 @@
     // Ponto 2 - Simulações
     function handleCallResponse(tipo) {
       const feedback = {
-        'erro1': '❌ Mau: Cliente sente-se ignorado. Agrava a situação.',
-        'erro2': '⚠️ Aceitável, mas falta empatia. Podia melhorar.',
-        'erro3': '❌ Péssimo: Cliente sente-se abandonado. Reclamação garantida.',
-        'correto': '✅ Excelente! Cliente sente-se valorizado. Resolução rápida.'
+        'erro1': '❌ Cliente sente-se abandonado. Reclamação no livro garantida.',
+        'erro2': '⚠️ Desculpa esfarrapada. Cliente fica mais irritado.',
+        'correto': '✅ Excelente! Cliente sente-se valorizado. Resolução rápida = fidelização.'
       };
       document.getElementById('callFeedback').innerHTML = feedback[tipo];
     }
     
     function handlePresentialResponse(tipo) {
       const feedback = {
-        'erro1': '❌ Transfere responsabilidade. Cliente irrita-se.',
-        'erro2': '❌ Minimiza o problema. Falta empatia.',
+        'erro1': '❌ Minimiza o problema. Cliente sente-se ignorado.',
+        'erro2': '❌ Transfere responsabilidade. Agrava a situação.',
         'correto1': '✅ Ação imediata. Cliente vê proatividade.',
-        'correto2': '✅ Compensação surpreende positivamente.'
+        'correto2': '✅ Compensação surpreende positivamente. Cliente fidelizado.'
       };
       document.getElementById('presentialFeedback').innerHTML = feedback[tipo];
     }
@@ -1073,9 +1076,9 @@
     
     function checkAssertive(element, tipo) {
       const phrases = {
-        'correto1': '"O problema não é meu" → "Vou ajudar a encontrar quem pode resolver"',
-        'correto2': '"O sistema é lento" → "Vamos verificar os dados, aguarde um momento"',
-        'correto3': '"Não posso fazer nada" → "Deixe-me ver o que posso fazer por si"'
+        'correto1': '"Não sou responsável pelos reembolsos" → "Vou encaminhar para a pessoa responsável e garantir que resolve"',
+        'correto2': '"A app é que é lenta" → "Compreendo a frustração. Enquanto resolvemos, damos-lhe um cartão físico"',
+        'correto3': '"Não posso fazer nada sobre as avarias" → "Já acionei a manutenção e dou-lhe feedback em 24h"'
       };
       document.getElementById('assertiveResult').innerHTML = phrases[tipo];
     }
@@ -1097,42 +1100,33 @@
       if (container.innerHTML.includes('Arrasta as etapas')) {
         container.innerHTML = '';
       }
-      container.innerHTML += ' ' + elementHtml + ' <i class="fas fa-arrow-right" style="color: var(--laranja-vivo);"></i> ';
+      container.innerHTML += ' ' + elementHtml + ' <i class="fas fa-arrow-right" style="color: var(--laranja-solinca);"></i> ';
     }
     
     function checkFluxograma() {
-      document.getElementById('fluxoFeedback').innerHTML = '✅ Fluxograma correto! 1.Receção → 2.Registo → 3.Análise → 4.Resposta → 5.Melhoria';
+      document.getElementById('fluxoFeedback').innerHTML = '✅ Fluxo correto! 1.Receção → 2.Registo → 3.Análise → 4.Resposta → 5.Melhoria';
     }
     
     function identifyError(tipo) {
       const errors = {
-        'erro1': '❌ Erro: Transferir responsabilidade. Correto: "Vou verificar por si"',
-        'erro2': '❌ Erro: Interromper cliente. Correto: Escuta ativa primeiro'
+        'erro1': '❌ Erro: Transferir responsabilidade. Correto: "Vou verificar por si e encaminhar"',
+        'erro2': '❌ Erro: Desculpas em vez de solução. Correto: Assumir e resolver.'
       };
       document.getElementById('errorFeedback').innerHTML = errors[tipo];
-    }
-    
-    function addProcedure(setor) {
-      const procedures = {
-        'recepcao': '📋 Receção: Acolher com sorriso, registar reclamação, informar prazo',
-        'backoffice': '📋 Backoffice: Analisar em 2h, contactar setor responsável, preparar resposta',
-        'gerencia': '📋 Gerência: Validar soluções, aprovar compensações, monitorizar indicadores'
-      };
-      document.getElementById('proceduresList').innerHTML = procedures[setor];
     }
 
     // Ponto 4 - Livro Reclamações
     function submitReclamacao() {
-      const nome = document.getElementById('nomeReclamante').value || 'Anónimo';
+      const nome = document.getElementById('nomeReclamante').value || 'Sócio Solinca';
       const data = document.getElementById('dataReclamacao').value;
-      const desc = document.getElementById('descricaoReclamacao').value || 'Sem descrição';
+      const desc = document.getElementById('descricaoReclamacao').value || 'Reclamação registada';
       
       document.getElementById('livroResultado').innerHTML = `
-        ✅ Reclamação registada!<br>
+        ✅ Reclamação registada no Livro!<br>
         <strong>Nome:</strong> ${nome}<br>
         <strong>Data:</strong> ${data}<br>
         <strong>Descrição:</strong> ${desc}<br>
-        <span style="color: var(--laranja-vivo);">Prazo resposta: 15 dias úteis</span>
+        <span style="color: var(--laranja-solinca);">Prazo legal resposta: 15 dias úteis</span>
       `;
     }
     
@@ -1143,7 +1137,7 @@
     
     function showDebate() {
       document.getElementById('debateContent').innerHTML = 
-        '🎯 Cliente satisfeito: obrigação. Cliente fidelizado: encantamento. A diferença está no pós-reclamação!';
+        '🎯 Cliente satisfeito: obrigação. Cliente fidelizado: encantamento pós-reclamação. A diferença é o follow-up e a compensação personalizada.';
     }
 
     // Ponto 5 - Stress
@@ -1172,10 +1166,10 @@
     
     function handleCrisis(tipo) {
       const results = {
-        'ignorar': '❌ Clientes revoltados, queixa no livro, redes sociais negativas, perda de 30% dos sócios',
-        'culpar': '😤 Transferência de responsabilidade, imagem institucional arranhada',
-        'resolver': '✅ Clientes satisfeitos, 80% aceitam remarcação, 20% pedem reembolso - todos fidelizados',
-        'empatia': '💚 Clientes sentem-se compreendidos, 95% mantêm-se sócios, recomendam o clube'
+        'ignorar': '❌ Clientes revoltados, queixas no livro, redes sociais negativas, perda de sócios',
+        'culpar': '😤 Transferência de responsabilidade, imagem institucional danificada',
+        'resolver': '✅ 80% aceitam remarcação, 20% pedem reembolso - todos mantidos',
+        'empatia': '💚 Clientes compreendidos, 95% mantêm-se sócios, recomendam o clube'
       };
       document.getElementById('crisisResult').innerHTML = results[tipo];
     }
@@ -1188,10 +1182,10 @@
       reclamacoesChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Manutenção', 'Horários', 'Mensalidades', 'Aulas', 'Outros'],
+          labels: ['Faturação', 'Equipamentos', 'Segurança', 'Atendimento', 'App'],
           datasets: [{
-            data: [35, 28, 22, 10, 5],
-            backgroundColor: ['#F04E35', '#ED4F36', '#7D1756', '#7B1556', '#333'],
+            data: [40, 30, 15, 10, 5],
+            backgroundColor: ['#F04E35', '#ED4F36', '#7D1756', '#9d2a75', '#333'],
             borderColor: 'white',
             borderWidth: 2
           }]
@@ -1199,7 +1193,7 @@
         options: {
           responsive: true,
           plugins: {
-            legend: { labels: { color: 'white' } }
+            legend: { labels: { color: 'white', font: { size: 14 } } }
           }
         }
       });
